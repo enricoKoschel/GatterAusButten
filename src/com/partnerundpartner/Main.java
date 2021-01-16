@@ -2,6 +2,6 @@ package com.partnerundpartner;
 
 public class Main {
 	public static void main(String[] args) {
-		// write your code here
+		Window window = new Window("Schiffe versenken", 1280, 720);
 	}
 }
