@@ -24,7 +24,12 @@ public class Window extends PApplet {
 	@Override
 	public void draw() {
 		//Called 60 times per second
-		background(64);
+		//background(64);
 		ellipse(mouseX, mouseY, 50, 50);
+	}
+
+	@Override
+	public void mousePressed(){
+		rect(mouseX, mouseY, 50, 50);
 	}
 }
