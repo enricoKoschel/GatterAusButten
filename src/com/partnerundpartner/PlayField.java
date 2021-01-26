@@ -12,6 +12,8 @@ public class PlayField {
 		this.size = size;
 	}
 
+	//TODO - Double map, ArrayList<Ship> ships for ship objects, Array[][] map for drawing, general positions, water... (makes getHit() easier)
+
 	public Ship.State stateAt(int x, int y) {
 		for (Ship ship : ships) {
 			if (ship.getOrientation() == Ship.Orientation.Vertical) {
