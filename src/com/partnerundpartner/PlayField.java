@@ -12,7 +12,7 @@ public class PlayField {
 		this.size = size;
 	}
 
-	//TODO - Double map, ArrayList<Ship> ships for ship objects, Array[][] map for drawing, general positions, water... (makes getHit() easier)
+	//TODO - Double map, ArrayList<Ship> ships for active ship objects (remove if ship is dead, only keep in map), Array[][] map for drawing, general positions, water... (makes getHit() easier)
 
 	public Ship.State stateAt(int x, int y) {
 		for (Ship ship : ships) {
