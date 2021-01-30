@@ -4,33 +4,22 @@ import java.util.ArrayList;
 
 public class PlayField {
 	private final int size;
-	ArrayList<Ship> ships;
+	private final Ship.State[][] map;
+	private final ArrayList<Ship> ships;
 
 	public PlayField(int size) {
 		ships = new ArrayList<Ship>();
+		map = new Ship.State[size][size];
+
+		for (int y = 0; y < size; y++) {
+			for (int x = 0; x < size; x++) map[x][y] = Ship.State.Water;
+		}
 
 		this.size = size;
 	}
 
-	//TODO - Double map, ArrayList<Ship> ships for active ship objects (remove if ship is dead, only keep in map), Array[][] map for drawing, general positions, water... (makes getHit() easier)
-
 	public Ship.State stateAt(int x, int y) {
-		for (Ship ship : ships) {
-			if (ship.getOrientation() == Ship.Orientation.Vertical) {
-				for (int i = 0; i < ship.getLength(); i++) {
-					if (ship.getX() == x && ship.getY() + i == y) {
-						return ship.partAt(y - ship.getY());
-					}
-				}
-			} else {
-				for (int i = 0; i < ship.getLength(); i++) {
-					if (ship.getX() + i == x && ship.getY() == y) {
-						return ship.partAt(x - ship.getX());
-					}
-				}
-			}
-		}
-		return Ship.State.Water;
+		return map[x][y];
 	}
 
 	public void changeState(int x, int y, Ship.State state) {
@@ -39,11 +28,27 @@ public class PlayField {
 
 	public void addShip(int x, int y, int length, Ship.Orientation orientation) {
 		ships.add(new Ship(x, y, length, orientation));
+
+		for (int i = 0; i < length; i++) {
+			if (orientation == Ship.Orientation.Horizontal) {
+				map[x + i][y] = Ship.State.Alive_Ship;
+			} else {
+				map[x][y + i] = Ship.State.Alive_Ship;
+			}
+		}
 	}
 
 	public void display() {
+		System.out.print(" ");
+		for (int i = 0; i < size; i++) System.out.print(" " + (char)('A' + i));
+		System.out.println();
+
 		for (int y = 0; y < size; y++) {
+			System.out.print(y + 1);
+
 			for (int x = 0; x < size; x++) {
+				System.out.print(" ");
+
 				switch (stateAt(x, y)) {
 					case Alive_Ship:
 						System.out.print("#");

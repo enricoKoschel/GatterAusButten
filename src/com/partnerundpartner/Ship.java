@@ -4,7 +4,8 @@ public class Ship {
 	public enum State {
 		Alive_Ship,
 		Dead_Ship,
-		Water
+		Water,
+		Miss
 	}
 
 	public enum Orientation {
@@ -16,7 +17,7 @@ public class Ship {
 	private final int y;
 	private final int length;
 	private final Orientation orientation;
-	private final State[] parts;
+	private int health;
 
 	public Ship(int x, int y, int length, Orientation orientation) {
 		this.x = x;
@@ -24,13 +25,7 @@ public class Ship {
 		this.length = length;
 		this.orientation = orientation;
 
-		parts = new State[length];
-
-		for (int i = 0; i < length; i++) parts[i] = State.Alive_Ship;
-	}
-
-	public State partAt(int index) {
-		return parts[index];
+		health = length;
 	}
 
 	public int getX() {
