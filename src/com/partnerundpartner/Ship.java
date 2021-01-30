@@ -2,8 +2,9 @@ package com.partnerundpartner;
 
 public class Ship {
 	public enum State {
-		Alive_Ship,
-		Dead_Ship,
+		Alive_Ship_Horizontal,
+		Alive_Ship_Vertical,
+		Hit_Ship,
 		Water,
 		Miss
 	}
@@ -38,6 +39,14 @@ public class Ship {
 
 	public int getLength() {
 		return length;
+	}
+
+	public void getDamaged(){
+		health--;
+	}
+
+	public int getHealth(){
+		return health;
 	}
 
 	public Orientation getOrientation() {
