@@ -95,23 +95,15 @@ public class PlayField {
 		switch (stateAt(x, y)) {
 			case Alive_Ship_Horizontal:
 			case Alive_Ship_Vertical:
-				//Ship hit
-				System.out.println("HIT");
 				damageShipAt(x, y);
-				break;
+				return Ship.State.Alive_Ship_Horizontal;
 			case Hit_Ship:
-				//Already damaged ship hit
-				System.out.println("Already damaged ship hit");
-				break;
+				return Ship.State.Hit_Ship;
 			case Water:
-				//Miss
-				System.out.println("MISS");
 				changeStateAt(x, y, Ship.State.Miss);
-				break;
+				return Ship.State.Water;
 			case Miss:
-				//Already missed spot hit
-				System.out.println("Already missed spot hit");
-				break;
+				return Ship.State.Miss;
 		}
 
 		return Ship.State.Water;
