@@ -5,6 +5,12 @@ import processing.core.PApplet;
 import java.util.ArrayList;
 
 public class Window extends PApplet {
+	private enum GameState {
+		OwnTurn,
+		EnemyTurn,
+		PickShips
+	}
+
 	private final int width;
 	private final int height;
 	private final int scale = 80;
@@ -22,6 +28,10 @@ public class Window extends PApplet {
 	PlayField ownField = new PlayField(7);
 	PlayField enemyField = new PlayField(7);
 	ArrayList<String> infoText = new ArrayList<>();
+	GameState currentState = GameState.PickShips;
+	int remaining1Long = 4;
+	int remaining2Long = 3;
+	int remaining3Long = 2;
 
 	@Override
 	public void settings() {
@@ -48,15 +58,19 @@ public class Window extends PApplet {
 		text(text, 280 - textWidth(text) / 2, 80);
 		drawPlayField(0, 100, ownField.getMap());
 
-		text = "Gegnerisches Feld";
-		text(text, 1240 - textWidth(text) / 2, 80);
-		drawPlayField(960, 100, enemyField.getMap());
+		if (currentState == GameState.PickShips) {
+			drawShipList(560, 100);
+		} else {
+			text = "Gegnerisches Feld";
+			text(text, 1240 - textWidth(text) / 2, 80);
+			drawPlayField(960, 100, enemyField.getMap());
 
-		text = "Info";
-		text(text, 760 - textWidth(text) / 2, 80);
-		drawInfoSection(560, 100, 5, 7);
+			text = "Info";
+			text(text, 760 - textWidth(text) / 2, 80);
+			drawInfoSection(560, 100, 5, 7);
 
-		drawInfoText(30);
+			drawInfoText(30);
+		}
 	}
 
 	private void drawPlayField(int startX, int startY, Ship.State[][] map) {
@@ -118,24 +132,49 @@ public class Window extends PApplet {
 		popStyle();
 	}
 
+	private void drawShipList(int startX, int startY) {
+		//3 long
+		int xOffset3 = scale;
+		rect(startX + xOffset3, startY, scale, scale);
+		rect(startX + xOffset3 + scale, startY, scale, scale);
+		rect(startX + xOffset3 + scale * 2, startY, scale, scale);
+
+		//2 long
+		int xOffset2 = scale * 5;
+		rect(startX + xOffset2, startY, scale, scale);
+		rect(startX + xOffset2 + scale, startY, scale, scale);
+
+		//1 long
+		int xOffset1 = scale * 8;
+		rect(startX + xOffset1, startY, scale, scale);
+	}
+
 	@Override
 	public void mouseReleased() {
-		if (mouseX < 560 && mouseY > 100) {
-			//Own field
-			int cellX = snapDown(mouseX, scale) / scale;
+		if (currentState == GameState.PickShips) {
+
+		} else {
 			int cellY = snapDown(mouseY - 100, scale) / scale;
 
-			ownField.getShotAt(cellX, cellY);
-		} else if (mouseX > 960 && mouseY > 100) {
-			//Enemy field
-			int cellX = snapDown(mouseX - 960, scale) / scale;
-			int cellY = snapDown(mouseY - 100, scale) / scale;
+			if (mouseX < 560 && mouseY > 100) {
+				//Own field
+				int cellX = snapDown(mouseX, scale) / scale;
 
-			enemyField.getShotAt(cellX, cellY);
+				ownField.getShotAt(cellX, cellY);
+			} else if (mouseX > 960 && mouseY > 100) {
+				//Enemy field
+				int cellX = snapDown(mouseX - 960, scale) / scale;
+
+				enemyField.getShotAt(cellX, cellY);
+			}
 		}
 	}
 
 	private int snapDown(double value, int multiple) {
 		return (int)(Math.floor(value / multiple) * multiple);
+	}
+
+	private boolean isInsideRect(int x, int y, int topLeftX, int topLeftY, int bottomRightX, int bottomRightY){
+		return (x > topLeftX && x < bottomRightX) && (y > topLeftY && y < bottomRightY);
 	}
 }
