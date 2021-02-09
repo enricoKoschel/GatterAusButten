@@ -108,4 +108,8 @@ public class PlayField {
 
 		return Ship.State.Water;
 	}
+
+	public Ship.State[][] getMap(){
+		return map;
+	}
 }
