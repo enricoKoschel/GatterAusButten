@@ -31,14 +31,17 @@ public class Window extends PApplet {
 		infoText.add("1. Player hit A7");
 		infoText.add("2. CPU hit B6");
 		infoText.add("3. Player missed");
+
+		ownField.addShip(0, 0, 3, Ship.Orientation.Horizontal);
+		enemyField.addShip(1, 1, 4, Ship.Orientation.Horizontal);
 	}
 
 	@Override
 	public void draw() {
 		//Called 60 times per second
-		background(0, 119, 190);
+		background(24, 24, 24);
 		textSize(50);
-		fill(24, 24, 24);
+		fill(255);
 		stroke(48, 48, 48);
 
 		String text = "Eigenes Feld";
@@ -57,17 +60,40 @@ public class Window extends PApplet {
 	}
 
 	private void drawPlayField(int startX, int startY, Ship.State[][] map) {
+		pushStyle();
 		int size = map.length;
 
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) {
+				switch (map[x][y]) {
+					case Alive_Ship_Horizontal:
+					case Alive_Ship_Vertical:
+						fill(0, 255, 0);
+						break;
+					case Hit_Ship:
+						fill(255, 0, 0);
+						break;
+					case Water:
+						fill(0, 0, 255);
+						break;
+					case Miss:
+						fill(128);
+						break;
+				}
 				rect(startX + x * scale, startY + y * scale, scale, scale);
 			}
 		}
+
+		popStyle();
 	}
 
 	private void drawInfoSection(int x, int y, int xSize, int ySize) {
+		pushStyle();
+		fill(24, 24, 24);
+
 		rect(x, y, xSize * scale, ySize * scale);
+
+		popStyle();
 	}
 
 	private void drawInfoText(int size) {
@@ -81,7 +107,7 @@ public class Window extends PApplet {
 			int y = 100 + size + i * size;
 
 			//Remove text from list if offscreen
-			if(y > height - size){
+			if (y > height - size) {
 				infoText.remove(infoText.size() - 1 - i);
 				i--;
 			}
@@ -93,7 +119,23 @@ public class Window extends PApplet {
 	}
 
 	@Override
-	public void mousePressed() {
-		rect(mouseX, mouseY, 50, 50);
+	public void mouseReleased() {
+		if (mouseX < 560 && mouseY > 100) {
+			//Own field
+			int cellX = snapDown(mouseX, scale) / scale;
+			int cellY = snapDown(mouseY - 100, scale) / scale;
+
+			ownField.getShotAt(cellX, cellY);
+		} else if (mouseX > 960 && mouseY > 100) {
+			//Enemy field
+			int cellX = snapDown(mouseX - 960, scale) / scale;
+			int cellY = snapDown(mouseY - 100, scale) / scale;
+
+			enemyField.getShotAt(cellX, cellY);
+		}
+	}
+
+	private int snapDown(double value, int multiple) {
+		return (int)(Math.floor(value / multiple) * multiple);
 	}
 }

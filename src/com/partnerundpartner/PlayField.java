@@ -8,7 +8,7 @@ public class PlayField {
 	private final ArrayList<Ship> livingShips;
 
 	public PlayField(int size) {
-		livingShips = new ArrayList<Ship>();
+		livingShips = new ArrayList<>();
 		map = new Ship.State[size][size];
 
 		for (int y = 0; y < size; y++) {
@@ -39,9 +39,9 @@ public class PlayField {
 					}
 				}
 			}
-
-			if(ship.getHealth() <= 0) livingShips.remove(ship);
 		}
+
+		livingShips.removeIf(ship -> ship.getHealth() <= 0);
 
 		changeStateAt(x, y, Ship.State.Hit_Ship);
 	}
