@@ -46,7 +46,11 @@ public class PlayField {
 		changeStateAt(x, y, Ship.State.Hit_Ship);
 	}
 
-	public void addShip(int x, int y, int length, Ship.Orientation orientation) {
+	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
+		//if(){
+		//
+		//}
+
 		livingShips.add(new Ship(x, y, length, orientation));
 
 		for (int i = 0; i < length; i++) {
@@ -56,39 +60,8 @@ public class PlayField {
 				map[x][y + i] = Ship.State.Alive_Ship_Vertical;
 			}
 		}
-	}
 
-	public void display() {
-		System.out.print(" ");
-		for (int i = 1; i <= size; i++) System.out.print(" " + i);
-		System.out.println();
-
-		for (int y = 0; y < size; y++) {
-			System.out.print((char)('A' + y));
-
-			for (int x = 0; x < size; x++) {
-				System.out.print(" ");
-
-				switch (stateAt(x, y)) {
-					case Alive_Ship_Horizontal:
-						System.out.print("━");
-						break;
-					case Alive_Ship_Vertical:
-						System.out.print("┃");
-						break;
-					case Hit_Ship:
-						System.out.print("X");
-						break;
-					case Water:
-						System.out.print("·");
-						break;
-					case Miss:
-						System.out.print("O");
-						break;
-				}
-			}
-			System.out.println();
-		}
+		return true;
 	}
 
 	public Ship.State getShotAt(int x, int y) {

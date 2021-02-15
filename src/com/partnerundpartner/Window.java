@@ -44,8 +44,7 @@ public class Window extends PApplet {
 		infoText.add("2. CPU hit B6");
 		infoText.add("3. Player missed");
 
-		ownField.addShip(0, 0, 3, Ship.Orientation.Horizontal);
-		enemyField.addShip(1, 1, 4, Ship.Orientation.Horizontal);
+		enemyField.addShip(1, 1, 6, Ship.Orientation.Horizontal);
 	}
 
 	@Override
@@ -137,21 +136,38 @@ public class Window extends PApplet {
 
 	private void drawShipList() {
 		//3 long
+		pushStyle();
+		if (selectedShipLength == 3) {
+			fill(128, 128, 128);
+		}
+
 		int xOffset3 = scale;
 		rect(560 + xOffset3, 100, scale, scale);
 		rect(560 + xOffset3 + scale, 100, scale, scale);
 		rect(560 + xOffset3 + scale * 2, 100, scale, scale);
+		popStyle();
 		text("x" + remaining3Long, 560 + xOffset3 + scale * 3, 100 + scale);
+
+		pushStyle();
+		if (selectedShipLength == 2) {
+			fill(128, 128, 128);
+		}
 
 		//2 long
 		int xOffset2 = scale * 6;
 		rect(560 + xOffset2, 100, scale, scale);
 		rect(560 + xOffset2 + scale, 100, scale, scale);
+		popStyle();
 		text("x" + remaining2Long, 560 + xOffset2 + scale * 2, 100 + scale);
 
+		pushStyle();
+		if (selectedShipLength == 1) {
+			fill(128, 128, 128);
+		}
 		//1 long
 		int xOffset1 = scale * 10;
 		rect(560 + xOffset1, 100, scale, scale);
+		popStyle();
 		text("x" + remaining1Long, 560 + xOffset1 + scale, 100 + scale);
 	}
 
@@ -165,12 +181,15 @@ public class Window extends PApplet {
 		fill(128, 128, 128);
 
 		if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShipLength > 0) {
-
 			for (int i = 0; i < selectedShipLength; i++) {
 				if (selectedShipOrientation == Ship.Orientation.Horizontal) {
-					rect(x + scale * i, y, scale, scale);
+					if (x + scale * i < scale * 7) {
+						rect(x + scale * i, y, scale, scale);
+					}
 				} else {
-					rect(x, y + scale * i, scale, scale);
+					if (y + scale * i < scale * 8) {
+						rect(x, y + scale * i, scale, scale);
+					}
 				}
 			}
 		}
@@ -185,29 +204,73 @@ public class Window extends PApplet {
 	@Override
 	public void mouseReleased() {
 		if (currentState == GameState.PickShips) {
-			int topY = 100;
-			int bottomY = 100 + scale;
+			if (mouseButton == RIGHT) {
+				//Deselect selected ship
+				selectedShipLength = 0;
+			} else if (mouseButton == LEFT) {
+				if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShipLength > 0) {
+					//Add ship to map
+					int cellX = snapDown(mouseX, scale) / scale;
+					int cellY = snapDown(mouseY - 100, scale) / scale;
 
-			int leftX3Long = scale * 8;
-			int rightX3Long = leftX3Long + scale * 3;
+					if (ownField.addShip(cellX, cellY, selectedShipLength, selectedShipOrientation)) {
+						switch (selectedShipLength) {
+							case 1:
+								remaining1Long--;
+								break;
+							case 2:
+								remaining2Long--;
+								break;
+							case 3:
+								remaining3Long--;
+								break;
+						}
 
-			int leftX2Long = scale * 13;
-			int rightX2Long = leftX2Long + scale * 2;
+						selectedShipLength = 0;
 
-			int leftX1Long = scale * 17;
-			int rightX1Long = leftX1Long + scale;
+						if(remaining3Long + remaining2Long + remaining1Long == 0){
+							currentState = GameState.OwnTurn;
+						}
 
-			fill(255, 0, 0);
+						System.out.println("ship added");
+					} else {
+						System.out.println("error");
+					}
+				} else {
+					//Select ship from list
+					selectedShipOrientation = Ship.Orientation.Horizontal;
 
-			if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
-				//Mouse inside 3 long ship
-				selectedShipLength = 3;
-			} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
-				//Mouse inside 2 long ship
-				selectedShipLength = 2;
-			} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
-				//Mouse inside 1 long ship
-				selectedShipLength = 1;
+					int topY = 100;
+					int bottomY = 100 + scale;
+
+					int leftX3Long = scale * 8;
+					int rightX3Long = leftX3Long + scale * 3;
+
+					int leftX2Long = scale * 13;
+					int rightX2Long = leftX2Long + scale * 2;
+
+					int leftX1Long = scale * 17;
+					int rightX1Long = leftX1Long + scale;
+
+					fill(255, 0, 0);
+
+					if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
+						//Place 3 long ship
+						if (remaining3Long > 0) {
+							selectedShipLength = selectedShipLength == 3 ? 0 : 3;
+						}
+					} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
+						//Place 2 long ship
+						if (remaining2Long > 0) {
+							selectedShipLength = selectedShipLength == 2 ? 0 : 2;
+						}
+					} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
+						//Place 1 long ship
+						if (remaining1Long > 0) {
+							selectedShipLength = selectedShipLength == 1 ? 0 : 1;
+						}
+					}
+				}
 			}
 		} else {
 			int cellY = snapDown(mouseY - 100, scale) / scale;
