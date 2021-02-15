@@ -32,6 +32,8 @@ public class Window extends PApplet {
 	int remaining1Long = 4;
 	int remaining2Long = 3;
 	int remaining3Long = 2;
+	int selectedShipLength = 0;
+	Ship.Orientation selectedShipOrientation = Ship.Orientation.Horizontal;
 
 	@Override
 	public void settings() {
@@ -56,24 +58,25 @@ public class Window extends PApplet {
 
 		String text = "Eigenes Feld";
 		text(text, 280 - textWidth(text) / 2, 80);
-		drawPlayField(0, 100, ownField.getMap());
+		drawPlayField(0, ownField.getMap());
 
 		if (currentState == GameState.PickShips) {
-			drawShipList(560, 100);
+			drawShipList();
+			drawShipPlaceholder();
 		} else {
 			text = "Gegnerisches Feld";
 			text(text, 1240 - textWidth(text) / 2, 80);
-			drawPlayField(960, 100, enemyField.getMap());
+			drawPlayField(960, enemyField.getMap());
 
 			text = "Info";
 			text(text, 760 - textWidth(text) / 2, 80);
-			drawInfoSection(560, 100, 5, 7);
+			drawInfoSection();
 
-			drawInfoText(30);
+			drawInfoText();
 		}
 	}
 
-	private void drawPlayField(int startX, int startY, Ship.State[][] map) {
+	private void drawPlayField(int startX, Ship.State[][] map) {
 		pushStyle();
 		int size = map.length;
 
@@ -94,34 +97,34 @@ public class Window extends PApplet {
 						fill(128);
 						break;
 				}
-				rect(startX + x * scale, startY + y * scale, scale, scale);
+				rect(startX + x * scale, 100 + y * scale, scale, scale);
 			}
 		}
 
 		popStyle();
 	}
 
-	private void drawInfoSection(int x, int y, int xSize, int ySize) {
+	private void drawInfoSection() {
 		pushStyle();
 		fill(24, 24, 24);
 
-		rect(x, y, xSize * scale, ySize * scale);
+		rect(560, 100, 5 * scale, 7 * scale);
 
 		popStyle();
 	}
 
-	private void drawInfoText(int size) {
+	private void drawInfoText() {
 		pushStyle();
 		fill(255);
-		textSize(size);
+		textSize(30);
 
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
 
-			int y = 100 + size + i * size;
+			int y = 100 + 30 + i * 30;
 
 			//Remove text from list if offscreen
-			if (y > height - size) {
+			if (y > height - 30) {
 				infoText.remove(infoText.size() - 1 - i);
 				i--;
 			}
@@ -132,36 +135,89 @@ public class Window extends PApplet {
 		popStyle();
 	}
 
-	private void drawShipList(int startX, int startY) {
+	private void drawShipList() {
 		//3 long
 		int xOffset3 = scale;
-		rect(startX + xOffset3, startY, scale, scale);
-		rect(startX + xOffset3 + scale, startY, scale, scale);
-		rect(startX + xOffset3 + scale * 2, startY, scale, scale);
+		rect(560 + xOffset3, 100, scale, scale);
+		rect(560 + xOffset3 + scale, 100, scale, scale);
+		rect(560 + xOffset3 + scale * 2, 100, scale, scale);
+		text("x" + remaining3Long, 560 + xOffset3 + scale * 3, 100 + scale);
 
 		//2 long
-		int xOffset2 = scale * 5;
-		rect(startX + xOffset2, startY, scale, scale);
-		rect(startX + xOffset2 + scale, startY, scale, scale);
+		int xOffset2 = scale * 6;
+		rect(560 + xOffset2, 100, scale, scale);
+		rect(560 + xOffset2 + scale, 100, scale, scale);
+		text("x" + remaining2Long, 560 + xOffset2 + scale * 2, 100 + scale);
 
 		//1 long
-		int xOffset1 = scale * 8;
-		rect(startX + xOffset1, startY, scale, scale);
+		int xOffset1 = scale * 10;
+		rect(560 + xOffset1, 100, scale, scale);
+		text("x" + remaining1Long, 560 + xOffset1 + scale, 100 + scale);
+	}
+
+	private void drawShipPlaceholder() {
+		int cellX = snapDown(mouseX, scale) / scale;
+		int cellY = snapDown(mouseY - 20, scale) / scale;
+
+		int x = cellX * scale;
+		int y = cellY * scale + 20;
+
+		fill(128, 128, 128);
+
+		if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShipLength > 0) {
+
+			for (int i = 0; i < selectedShipLength; i++) {
+				if (selectedShipOrientation == Ship.Orientation.Horizontal) {
+					rect(x + scale * i, y, scale, scale);
+				} else {
+					rect(x, y + scale * i, scale, scale);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void mouseWheel() {
+		selectedShipOrientation = selectedShipOrientation == Ship.Orientation.Horizontal ?
+				Ship.Orientation.Vertical : Ship.Orientation.Horizontal;
 	}
 
 	@Override
 	public void mouseReleased() {
 		if (currentState == GameState.PickShips) {
+			int topY = 100;
+			int bottomY = 100 + scale;
 
+			int leftX3Long = scale * 8;
+			int rightX3Long = leftX3Long + scale * 3;
+
+			int leftX2Long = scale * 13;
+			int rightX2Long = leftX2Long + scale * 2;
+
+			int leftX1Long = scale * 17;
+			int rightX1Long = leftX1Long + scale;
+
+			fill(255, 0, 0);
+
+			if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
+				//Mouse inside 3 long ship
+				selectedShipLength = 3;
+			} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
+				//Mouse inside 2 long ship
+				selectedShipLength = 2;
+			} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
+				//Mouse inside 1 long ship
+				selectedShipLength = 1;
+			}
 		} else {
 			int cellY = snapDown(mouseY - 100, scale) / scale;
 
-			if (mouseX < 560 && mouseY > 100) {
+			if (mouseX > 0 && mouseX < 560 && mouseY > 100) {
 				//Own field
 				int cellX = snapDown(mouseX, scale) / scale;
 
 				ownField.getShotAt(cellX, cellY);
-			} else if (mouseX > 960 && mouseY > 100) {
+			} else if (mouseX > 0 && mouseX > 960 && mouseY > 100) {
 				//Enemy field
 				int cellX = snapDown(mouseX - 960, scale) / scale;
 
@@ -174,7 +230,7 @@ public class Window extends PApplet {
 		return (int)(Math.floor(value / multiple) * multiple);
 	}
 
-	private boolean isInsideRect(int x, int y, int topLeftX, int topLeftY, int bottomRightX, int bottomRightY){
+	private boolean isInsideRect(int x, int y, int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
 		return (x > topLeftX && x < bottomRightX) && (y > topLeftY && y < bottomRightY);
 	}
 }
