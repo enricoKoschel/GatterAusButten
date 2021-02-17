@@ -39,11 +39,28 @@ public class PlayField {
 					}
 				}
 			}
+
+			changeStateAt(x, y, Ship.State.Hit_Ship);
+		}
+
+		for(Ship ship : livingShips){
+			if (ship.getHealth() <= 0) {
+				int shipX = ship.getX();
+				int shipY = ship.getY();
+				int length = ship.getLength();
+				Ship.Orientation orientation = ship.getOrientation();
+
+				for (int i = 0; i < length; i++) {
+					if (orientation == Ship.Orientation.Vertical) {
+						changeStateAt(shipX, shipY + i, Ship.State.Sunk_Ship);
+					} else {
+						changeStateAt(shipX + i, shipY, Ship.State.Sunk_Ship);
+					}
+				}
+			}
 		}
 
 		livingShips.removeIf(ship -> ship.getHealth() <= 0);
-
-		changeStateAt(x, y, Ship.State.Hit_Ship);
 	}
 
 	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
@@ -55,9 +72,9 @@ public class PlayField {
 
 		for (int i = 0; i < length; i++) {
 			if (orientation == Ship.Orientation.Horizontal) {
-				map[x + i][y] = Ship.State.Alive_Ship_Horizontal;
+				map[x + i][y] = Ship.State.Living_Ship;
 			} else {
-				map[x][y + i] = Ship.State.Alive_Ship_Vertical;
+				map[x][y + i] = Ship.State.Living_Ship;
 			}
 		}
 
@@ -66,10 +83,9 @@ public class PlayField {
 
 	public Ship.State getShotAt(int x, int y) {
 		switch (stateAt(x, y)) {
-			case Alive_Ship_Horizontal:
-			case Alive_Ship_Vertical:
+			case Living_Ship:
 				damageShipAt(x, y);
-				return Ship.State.Alive_Ship_Horizontal;
+				return Ship.State.Living_Ship;
 			case Hit_Ship:
 				return Ship.State.Hit_Ship;
 			case Water:
@@ -82,7 +98,11 @@ public class PlayField {
 		return Ship.State.Water;
 	}
 
-	public Ship.State[][] getMap(){
+	public Ship.State[][] getMap() {
 		return map;
+	}
+
+	public int getNumberOfAliveShips() {
+		return livingShips.size();
 	}
 }

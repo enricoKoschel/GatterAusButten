@@ -2,8 +2,8 @@ package com.partnerundpartner;
 
 public class Ship {
 	public enum State {
-		Alive_Ship_Horizontal,
-		Alive_Ship_Vertical,
+		Living_Ship,
+		Sunk_Ship,
 		Hit_Ship,
 		Water,
 		Miss

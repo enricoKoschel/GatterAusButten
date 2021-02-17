@@ -25,12 +25,13 @@ public class Window extends PApplet {
 	}
 
 	//Game variables
-	PlayField ownField = new PlayField(7);
-	PlayField enemyField = new PlayField(7);
+	int playFieldSize = 7;
+	PlayField ownField = new PlayField(playFieldSize);
+	PlayField enemyField = new PlayField(playFieldSize);
 	ArrayList<String> infoText = new ArrayList<>();
 	GameState currentState = GameState.PickShips;
-	int remaining1Long = 4;
-	int remaining2Long = 3;
+	int remaining1Long = 3;
+	int remaining2Long = 2;
 	int remaining3Long = 2;
 	int selectedShipLength = 0;
 	Ship.Orientation selectedShipOrientation = Ship.Orientation.Horizontal;
@@ -77,14 +78,16 @@ public class Window extends PApplet {
 
 	private void drawPlayField(int startX, Ship.State[][] map) {
 		pushStyle();
-		int size = map.length;
+		int playFieldSize = map.length;
 
-		for (int y = 0; y < size; y++) {
-			for (int x = 0; x < size; x++) {
+		for (int y = 0; y < playFieldSize; y++) {
+			for (int x = 0; x < playFieldSize; x++) {
 				switch (map[x][y]) {
-					case Alive_Ship_Horizontal:
-					case Alive_Ship_Vertical:
+					case Living_Ship:
 						fill(0, 255, 0);
+						break;
+					case Sunk_Ship:
+						fill(0);
 						break;
 					case Hit_Ship:
 						fill(255, 0, 0);
@@ -228,7 +231,7 @@ public class Window extends PApplet {
 
 						selectedShipLength = 0;
 
-						if(remaining3Long + remaining2Long + remaining1Long == 0){
+						if (remaining3Long + remaining2Long + remaining1Long == 0) {
 							currentState = GameState.OwnTurn;
 						}
 
@@ -280,7 +283,7 @@ public class Window extends PApplet {
 				int cellX = snapDown(mouseX, scale) / scale;
 
 				ownField.getShotAt(cellX, cellY);
-			} else if (mouseX > 0 && mouseX > 960 && mouseY > 100) {
+			} else if (mouseX > 960 && mouseX < 1520 && mouseY > 100) {
 				//Enemy field
 				int cellX = snapDown(mouseX - 960, scale) / scale;
 
