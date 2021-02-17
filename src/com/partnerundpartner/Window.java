@@ -3,6 +3,7 @@ package com.partnerundpartner;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Window extends PApplet {
 	private enum GameState {
@@ -28,18 +29,24 @@ public class Window extends PApplet {
 	int playFieldSize = 7;
 	PlayField ownField = new PlayField(playFieldSize);
 	PlayField enemyField = new PlayField(playFieldSize);
+
 	ArrayList<String> infoText = new ArrayList<>();
+
 	GameState currentState = GameState.PickShips;
-	int remaining1Long = 3;
-	int remaining2Long = 2;
-	int remaining3Long = 2;
-	int selectedShipLength = 0;
-	Ship.Orientation selectedShipOrientation = Ship.Orientation.Horizontal;
+
+	HashMap<Ship.Type, Integer> remainingShipsToSelect = new HashMap<>();
+
+	//Dummy ship for placing new ships
+	Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
 
 	@Override
 	public void settings() {
 		//Called once at program start
 		size(width, height);
+
+		remainingShipsToSelect.put(Ship.Type.OneLong, 3);
+		remainingShipsToSelect.put(Ship.Type.TwoLong, 2);
+		remainingShipsToSelect.put(Ship.Type.ThreeLong, 2);
 
 		infoText.add("1. Player hit A7");
 		infoText.add("2. CPU hit B6");
@@ -140,7 +147,7 @@ public class Window extends PApplet {
 	private void drawShipList() {
 		//3 long
 		pushStyle();
-		if (selectedShipLength == 3) {
+		if (selectedShip.getLength() == 3) {
 			fill(128, 128, 128);
 		}
 
@@ -149,10 +156,10 @@ public class Window extends PApplet {
 		rect(560 + xOffset3 + scale, 100, scale, scale);
 		rect(560 + xOffset3 + scale * 2, 100, scale, scale);
 		popStyle();
-		text("x" + remaining3Long, 560 + xOffset3 + scale * 3, 100 + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), 560 + xOffset3 + scale * 3, 100 + scale);
 
 		pushStyle();
-		if (selectedShipLength == 2) {
+		if (selectedShip.getLength() == 2) {
 			fill(128, 128, 128);
 		}
 
@@ -161,17 +168,17 @@ public class Window extends PApplet {
 		rect(560 + xOffset2, 100, scale, scale);
 		rect(560 + xOffset2 + scale, 100, scale, scale);
 		popStyle();
-		text("x" + remaining2Long, 560 + xOffset2 + scale * 2, 100 + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), 560 + xOffset2 + scale * 2, 100 + scale);
 
 		pushStyle();
-		if (selectedShipLength == 1) {
+		if (selectedShip.getLength() == 1) {
 			fill(128, 128, 128);
 		}
 		//1 long
 		int xOffset1 = scale * 10;
 		rect(560 + xOffset1, 100, scale, scale);
 		popStyle();
-		text("x" + remaining1Long, 560 + xOffset1 + scale, 100 + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), 560 + xOffset1 + scale, 100 + scale);
 	}
 
 	private void drawShipPlaceholder() {
@@ -183,9 +190,9 @@ public class Window extends PApplet {
 
 		fill(128, 128, 128);
 
-		if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShipLength > 0) {
-			for (int i = 0; i < selectedShipLength; i++) {
-				if (selectedShipOrientation == Ship.Orientation.Horizontal) {
+		if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShip.getLength() > 0) {
+			for (int i = 0; i < selectedShip.getLength(); i++) {
+				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
 					if (x + scale * i < scale * 7) {
 						rect(x + scale * i, y, scale, scale);
 					}
@@ -200,8 +207,8 @@ public class Window extends PApplet {
 
 	@Override
 	public void mouseWheel() {
-		selectedShipOrientation = selectedShipOrientation == Ship.Orientation.Horizontal ?
-				Ship.Orientation.Vertical : Ship.Orientation.Horizontal;
+		selectedShip.setOrientation(selectedShip.getOrientation() == Ship.Orientation.Horizontal ?
+				Ship.Orientation.Vertical : Ship.Orientation.Horizontal);
 	}
 
 	@Override
@@ -209,29 +216,34 @@ public class Window extends PApplet {
 		if (currentState == GameState.PickShips) {
 			if (mouseButton == RIGHT) {
 				//Deselect selected ship
-				selectedShipLength = 0;
+				selectedShip.setLength(0);
 			} else if (mouseButton == LEFT) {
-				if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShipLength > 0) {
+				if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShip.getLength() > 0) {
 					//Add ship to map
 					int cellX = snapDown(mouseX, scale) / scale;
 					int cellY = snapDown(mouseY - 100, scale) / scale;
 
-					if (ownField.addShip(cellX, cellY, selectedShipLength, selectedShipOrientation)) {
-						switch (selectedShipLength) {
+					if (ownField.addShip(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
+						switch (selectedShip.getLength()) {
 							case 1:
-								remaining1Long--;
+								remainingShipsToSelect.put(Ship.Type.OneLong, remainingShipsToSelect.get(Ship.Type.OneLong) - 1);
 								break;
 							case 2:
-								remaining2Long--;
+								remainingShipsToSelect.put(Ship.Type.TwoLong, remainingShipsToSelect.get(Ship.Type.TwoLong) - 1);
 								break;
 							case 3:
-								remaining3Long--;
+								remainingShipsToSelect.put(Ship.Type.ThreeLong, remainingShipsToSelect.get(Ship.Type.ThreeLong) - 1);
 								break;
 						}
 
-						selectedShipLength = 0;
+						selectedShip.setLength(0);
 
-						if (remaining3Long + remaining2Long + remaining1Long == 0) {
+						int totalNumberOfShipsRemaining = 0;
+						for (int remaining : remainingShipsToSelect.values()) {
+							totalNumberOfShipsRemaining += remaining;
+						}
+
+						if (totalNumberOfShipsRemaining == 0) {
 							currentState = GameState.OwnTurn;
 						}
 
@@ -241,7 +253,7 @@ public class Window extends PApplet {
 					}
 				} else {
 					//Select ship from list
-					selectedShipOrientation = Ship.Orientation.Horizontal;
+					selectedShip.setOrientation(Ship.Orientation.Horizontal);
 
 					int topY = 100;
 					int bottomY = 100 + scale;
@@ -259,18 +271,18 @@ public class Window extends PApplet {
 
 					if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
 						//Place 3 long ship
-						if (remaining3Long > 0) {
-							selectedShipLength = selectedShipLength == 3 ? 0 : 3;
+						if (remainingShipsToSelect.get(Ship.Type.ThreeLong) > 0) {
+							selectedShip.setLength(selectedShip.getLength() == 3 ? 0 : 3);
 						}
 					} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
 						//Place 2 long ship
-						if (remaining2Long > 0) {
-							selectedShipLength = selectedShipLength == 2 ? 0 : 2;
+						if (remainingShipsToSelect.get(Ship.Type.TwoLong) > 0) {
+							selectedShip.setLength(selectedShip.getLength() == 2 ? 0 : 2);
 						}
 					} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
 						//Place 1 long ship
-						if (remaining1Long > 0) {
-							selectedShipLength = selectedShipLength == 1 ? 0 : 1;
+						if (remainingShipsToSelect.get(Ship.Type.OneLong) > 0) {
+							selectedShip.setLength(selectedShip.getLength() == 1 ? 0 : 1);
 						}
 					}
 				}

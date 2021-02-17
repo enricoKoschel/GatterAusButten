@@ -1,6 +1,12 @@
 package com.partnerundpartner;
 
 public class Ship {
+	public enum Type {
+		ThreeLong,
+		TwoLong,
+		OneLong
+	}
+
 	public enum State {
 		Living_Ship,
 		Sunk_Ship,
@@ -16,8 +22,8 @@ public class Ship {
 
 	private final int x;
 	private final int y;
-	private final int length;
-	private final Orientation orientation;
+	private int length;
+	private Orientation orientation;
 	private int health;
 
 	public Ship(int x, int y, int length, Orientation orientation) {
@@ -41,15 +47,23 @@ public class Ship {
 		return length;
 	}
 
-	public void getDamaged(){
+	public void getDamaged() {
 		health--;
 	}
 
-	public int getHealth(){
+	public int getHealth() {
 		return health;
 	}
 
 	public Orientation getOrientation() {
 		return orientation;
+	}
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	public void setOrientation(Orientation orientation) {
+		this.orientation = orientation;
 	}
 }
