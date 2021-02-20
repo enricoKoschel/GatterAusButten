@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Window extends PApplet {
+public class Game extends PApplet {
 	private enum GameState {
 		OwnTurn,
 		EnemyTurn,
@@ -14,11 +14,21 @@ public class Window extends PApplet {
 
 	private final int width;
 	private final int height;
-	private final int scale = 80;
+	private final int scale;
+	private final int bigTextSize;
+	private final int smallTextSize;
 
-	public Window(String title, int width, int height) {
-		this.width = width;
-		this.height = height;
+	public Game(String title, int playFieldSize, int scale) {
+		this.scale = scale;
+		this.playFieldSize = playFieldSize;
+		bigTextSize = (int)(scale / 2f);
+		smallTextSize = (int)(bigTextSize * 0.75);
+
+		ownField = new PlayField(playFieldSize);
+		enemyField = new PlayField(playFieldSize);
+
+		width = scale * (playFieldSize * 2 + 5);
+		height = scale * (playFieldSize + 2);
 
 		//Open window
 		String[] processingArgs = {title};
@@ -26,18 +36,18 @@ public class Window extends PApplet {
 	}
 
 	//Game variables
-	int playFieldSize = 7;
-	PlayField ownField = new PlayField(playFieldSize);
-	PlayField enemyField = new PlayField(playFieldSize);
+	private final int playFieldSize;
+	private final PlayField ownField;
+	private final PlayField enemyField;
 
-	ArrayList<String> infoText = new ArrayList<>();
+	private final ArrayList<String> infoText = new ArrayList<>();
 
-	GameState currentState = GameState.PickShips;
+	private GameState currentState = GameState.PickShips;
 
-	HashMap<Ship.Type, Integer> remainingShipsToSelect = new HashMap<>();
+	private final HashMap<Ship.Type, Integer> remainingShipsToSelect = new HashMap<>();
 
 	//Dummy ship for placing new ships
-	Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
+	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
 
 	@Override
 	public void settings() {
@@ -52,44 +62,49 @@ public class Window extends PApplet {
 		infoText.add("2. CPU hit B6");
 		infoText.add("3. Player missed");
 
-		enemyField.addShip(1, 1, 6, Ship.Orientation.Horizontal);
+		//enemyField.addShip(1, 1, 6, Ship.Orientation.Horizontal);
 	}
 
 	@Override
 	public void draw() {
 		//Called 60 times per second
 		background(24, 24, 24);
-		textSize(50);
-		fill(255);
-		stroke(48, 48, 48);
 
-		String text = "Eigenes Feld";
-		text(text, 280 - textWidth(text) / 2, 80);
-		drawPlayField(0, ownField.getMap());
+		switch (currentState) {
+			case PickShips:
+				drawPlayField("Eigenes Feld", scale, scale, ownField.getMap());
 
-		if (currentState == GameState.PickShips) {
-			drawShipList();
-			drawShipPlaceholder();
-		} else {
-			text = "Gegnerisches Feld";
-			text(text, 1240 - textWidth(text) / 2, 80);
-			drawPlayField(960, enemyField.getMap());
+				drawShipList(scale * (playFieldSize + 2), scale);
+				drawShipPlaceholder();
+				break;
 
-			text = "Info";
-			text(text, 760 - textWidth(text) / 2, 80);
-			drawInfoSection();
+			case EnemyTurn:
+			case OwnTurn:
+				drawPlayField("Eigenes Feld", scale, scale, ownField.getMap());
 
-			drawInfoText();
+				drawMiddleSection("Info", scale * (playFieldSize + 1), scale);
+
+				drawPlayField("Gegnerisches Feld", scale * (playFieldSize + 4), scale, enemyField.getMap());
+
+				drawMiddleSectionContents(scale * (playFieldSize + 1), scale);
+				break;
 		}
 	}
 
-	private void drawPlayField(int startX, Ship.State[][] map) {
+	private void drawPlayField(String title, float x, float y, Ship.State[][] map) {
 		pushStyle();
-		int playFieldSize = map.length;
 
-		for (int y = 0; y < playFieldSize; y++) {
-			for (int x = 0; x < playFieldSize; x++) {
-				switch (map[x][y]) {
+		textSize(bigTextSize);
+		fill(255);
+
+		final int size = map.length;
+		final int width = scale * size;
+
+		text(title, x + width / 2f - textWidth(title) / 2, y - scale / 4f);
+
+		for (int cellY = 0; cellY < size; cellY++) {
+			for (int cellX = 0; cellX < size; cellX++) {
+				switch (map[cellX][cellY]) {
 					case Living_Ship:
 						fill(0, 255, 0);
 						break;
@@ -106,98 +121,116 @@ public class Window extends PApplet {
 						fill(128);
 						break;
 				}
-				rect(startX + x * scale, 100 + y * scale, scale, scale);
+
+				rect(x + cellX * scale, y + cellY * scale, scale, scale);
 			}
 		}
 
 		popStyle();
 	}
 
-	private void drawInfoSection() {
+	private void drawMiddleSection(String title, float x, float y) {
 		pushStyle();
+
+		textSize(bigTextSize);
+		fill(255);
+
+		final int width = scale * 3;
+
+		text(title, x + width / 2f - textWidth(title) / 2, y - scale / 4f);
+
 		fill(24, 24, 24);
 
-		rect(560, 100, 5 * scale, 7 * scale);
+		rect(x, y, width, scale * playFieldSize);
 
 		popStyle();
 	}
 
-	private void drawInfoText() {
+	private void drawMiddleSectionContents(float x, float y) {
 		pushStyle();
+
 		fill(255);
-		textSize(30);
+		textSize(smallTextSize);
+
+		final int width = scale * 3;
 
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
 
-			int y = 100 + 30 + i * 30;
+			double textY = y * 1.5 + i * bigTextSize;
 
 			//Remove text from list if offscreen
-			if (y > height - 30) {
+			if (textY >= height - scale * 1.5) {
 				infoText.remove(infoText.size() - 1 - i);
 				i--;
 			}
 
-			text(text, 760 - textWidth(text) / 2, y);
+			text(text, x + width / 2f - textWidth(text) / 2, (float)textY);
 		}
 
 		popStyle();
 	}
 
-	private void drawShipList() {
+	private void drawShipList(float x, float y) {
 		//3 long
 		pushStyle();
+
 		if (selectedShip.getLength() == 3) {
 			fill(128, 128, 128);
+		} else {
+			fill(255);
 		}
 
-		int xOffset3 = scale;
-		rect(560 + xOffset3, 100, scale, scale);
-		rect(560 + xOffset3 + scale, 100, scale, scale);
-		rect(560 + xOffset3 + scale * 2, 100, scale, scale);
-		popStyle();
-		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), 560 + xOffset3 + scale * 3, 100 + scale);
+		rect(x, y, scale, scale);
+		rect(x + scale, y, scale, scale);
+		rect(x + scale * 2, y, scale, scale);
 
-		pushStyle();
+		fill(255);
+		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + scale * 3, y + scale);
+
+		//2 long
 		if (selectedShip.getLength() == 2) {
 			fill(128, 128, 128);
 		}
 
-		//2 long
-		int xOffset2 = scale * 6;
-		rect(560 + xOffset2, 100, scale, scale);
-		rect(560 + xOffset2 + scale, 100, scale, scale);
-		popStyle();
-		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), 560 + xOffset2 + scale * 2, 100 + scale);
+		float xPos2Long = x + scale * 4.5f;
+		rect(xPos2Long, y, scale, scale);
+		rect(xPos2Long + scale, y, scale, scale);
 
-		pushStyle();
+		fill(255);
+		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + scale * 2, y + scale);
+
+		//1 long
 		if (selectedShip.getLength() == 1) {
 			fill(128, 128, 128);
 		}
-		//1 long
-		int xOffset1 = scale * 10;
-		rect(560 + xOffset1, 100, scale, scale);
+
+		float xPos1Long = x + scale * 8;
+		rect(xPos1Long, y, scale, scale);
+
+		fill(255);
+		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + scale, y + scale);
+
 		popStyle();
-		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), 560 + xOffset1 + scale, 100 + scale);
 	}
 
 	private void drawShipPlaceholder() {
-		int cellX = snapDown(mouseX, scale) / scale;
-		int cellY = snapDown(mouseY - 20, scale) / scale;
+		int cellX = snapDown(mouseX - scale, scale) / scale;
+		int cellY = snapDown(mouseY - scale, scale) / scale;
 
-		int x = cellX * scale;
-		int y = cellY * scale + 20;
+		int x = cellX * scale + scale;
+		int y = cellY * scale + scale;
 
 		fill(128, 128, 128);
 
-		if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShip.getLength() > 0) {
+		if (mouseX > scale && mouseX < scale * (playFieldSize + 1) && mouseY > scale && mouseY < scale * (playFieldSize + 1) && selectedShip.getLength() > 0) {
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
-					if (x + scale * i < scale * 7) {
+					if (x + scale * i < scale * (playFieldSize + 1)) {
 						rect(x + scale * i, y, scale, scale);
 					}
 				} else {
-					if (y + scale * i < scale * 8) {
+					if (y + scale * i < scale * (playFieldSize + 1)) {
 						rect(x, y + scale * i, scale, scale);
 					}
 				}
@@ -213,6 +246,12 @@ public class Window extends PApplet {
 
 	@Override
 	public void mouseReleased() {
+		if (mouseButton == CENTER) {
+			currentState = GameState.OwnTurn;
+			return;
+		}
+
+
 		if (currentState == GameState.PickShips) {
 			if (mouseButton == RIGHT) {
 				//Deselect selected ship

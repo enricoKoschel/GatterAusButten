@@ -2,6 +2,8 @@ package com.partnerundpartner;
 
 public class Main {
 	public static void main(String[] args) {
-		Window gui = new Window("Schiffe versenken", 1520, 660);
+		Game gui = new Game("Schiffe versenken", 7, 80);
+		Game gui1 = new Game("Schiffe versenken", 2, 80);
+		Game gui2 = new Game("Schiffe versenken", 12, 80);
 	}
 }
