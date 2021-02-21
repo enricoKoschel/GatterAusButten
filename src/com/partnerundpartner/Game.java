@@ -20,7 +20,8 @@ public class Game extends PApplet {
 
 	private final float edgeMargin;
 
-	private final float cellSize;
+	private final int cellSize;
+	private final int smallCellSize;
 
 	private final float playFieldSize;
 
@@ -50,7 +51,8 @@ public class Game extends PApplet {
 
 		playFieldSize = (float)(width * 0.35);
 
-		cellSize = playFieldSize / playFieldCells;
+		cellSize = (int)(playFieldSize / playFieldCells);
+		smallCellSize = (int)(width * 0.06);
 
 		edgeMargin = (float)(width * 0.05);
 
@@ -75,8 +77,9 @@ public class Game extends PApplet {
 		enemyField = new PlayField(playFieldCells);
 
 		//Open window
-		String[] processingArgs = {"Schiffe Versenken"};
+		String[] processingArgs = {""};
 		PApplet.runSketch(processingArgs, this);
+		surface.setTitle("Schiffe versenken");
 	}
 
 	//Game variables
@@ -194,10 +197,10 @@ public class Game extends PApplet {
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
 
-			double textY = y + width / 50f + i * bigTextSize;
+			double textY = y + width / 50f + i * (width / 45f);
 
 			//Remove text from list if offscreen
-			if (textY >= height - cellSize * 1.5) {
+			if (textY >= y - width / 50f + middleSectionHeight) {
 				infoText.remove(infoText.size() - 1 - i);
 				i--;
 			}
@@ -212,21 +215,18 @@ public class Game extends PApplet {
 		//3 long
 		pushStyle();
 
-		//Ship list screen uses different cell size
-		int cellSize = (int)(width * 0.06);
-
 		if (selectedShip.getLength() == 3) {
 			fill(128, 128, 128);
 		} else {
 			fill(255);
 		}
 
-		rect(x, y, cellSize, cellSize);
-		rect(x + cellSize, y, cellSize, cellSize);
-		rect(x + cellSize * 2, y, cellSize, cellSize);
+		rect(x, y, smallCellSize, smallCellSize);
+		rect(x + smallCellSize, y, smallCellSize, smallCellSize);
+		rect(x + smallCellSize * 2, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + cellSize * 3, y + cellSize);
+		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + smallCellSize * 3, y + smallCellSize);
 
 		//2 long
 		if (selectedShip.getLength() == 2) {
@@ -234,11 +234,11 @@ public class Game extends PApplet {
 		}
 
 		int xPos2Long = (int)(width * 0.7);
-		rect(xPos2Long, y, cellSize, cellSize);
-		rect(xPos2Long + cellSize, y, cellSize, cellSize);
+		rect(xPos2Long, y, smallCellSize, smallCellSize);
+		rect(xPos2Long + smallCellSize, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + cellSize * 2, y + cellSize);
+		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + smallCellSize * 2, y + smallCellSize);
 
 		//1 long
 		if (selectedShip.getLength() == 1) {
@@ -246,32 +246,33 @@ public class Game extends PApplet {
 		}
 
 		int xPos1Long = (int)(width * 0.88);
-		rect(xPos1Long, y, cellSize, cellSize);
+		rect(xPos1Long, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + cellSize, y + cellSize);
+		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + smallCellSize, y + smallCellSize);
 
 		popStyle();
 	}
 
 	private void drawShipPlaceholder() {
-		int cellX = snapDown(mouseX - scale, scale) / scale;
-		int cellY = snapDown(mouseY - scale, scale) / scale;
+		int cellX = snapDown(mouseX - ownPlayFieldXPosition, cellSize) / cellSize;
+		int cellY = snapDown(mouseY - ownPlayFieldYPosition, cellSize) / cellSize;
 
-		int x = cellX * scale + scale;
-		int y = cellY * scale + scale;
+		int x = (int)(cellX * cellSize + ownPlayFieldXPosition);
+		int y = (int)(cellY * cellSize + ownPlayFieldYPosition);
 
 		fill(128, 128, 128);
 
-		if (mouseX > scale && mouseX < scale * (playFieldCells + 1) && mouseY > scale && mouseY < scale * (playFieldCells + 1) && selectedShip.getLength() > 0) {
+		//FIXME Ships sometimes get displayed outside of the play field and get cut off too soon
+		if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
-					if (x + scale * i < scale * (playFieldCells + 1)) {
-						rect(x + scale * i, y, scale, scale);
+					if (x + cellSize * i < cellSize * playFieldCells) {
+						rect(x + cellSize * i, y, cellSize, cellSize);
 					}
 				} else {
-					if (y + scale * i < scale * (playFieldCells + 1)) {
-						rect(x, y + scale * i, scale, scale);
+					if (y + cellSize * i < cellSize * playFieldCells) {
+						rect(x, y + cellSize * i, cellSize, cellSize);
 					}
 				}
 			}
@@ -286,43 +287,54 @@ public class Game extends PApplet {
 
 	@Override
 	public void mouseReleased() {
+		//TODO remove
 		if (mouseButton == CENTER) {
 			currentState = GameState.OwnTurn;
 			return;
 		}
-
 
 		if (currentState == GameState.PickShips) {
 			if (mouseButton == RIGHT) {
 				//Deselect selected ship
 				selectedShip.setLength(0);
 			} else if (mouseButton == LEFT) {
-				if (mouseX > 0 && mouseX < 560 && mouseY > 100 && selectedShip.getLength() > 0) {
+				if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0)
+				{
 					//Add ship to map
-					int cellX = snapDown(mouseX, scale) / scale;
-					int cellY = snapDown(mouseY - 100, scale) / scale;
+					int cellX = snapDown(mouseX - ownPlayFieldXPosition, cellSize) / cellSize;
+					int cellY = snapDown(mouseY - ownPlayFieldYPosition, cellSize) / cellSize;
 
 					if (ownField.addShip(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
 						switch (selectedShip.getLength()) {
 							case 1:
 								remainingShipsToSelect.put(Ship.Type.OneLong, remainingShipsToSelect.get(Ship.Type.OneLong) - 1);
+
+								if (remainingShipsToSelect.get(Ship.Type.OneLong) <= 0) {
+									selectedShip.setLength(0);
+								}
 								break;
 							case 2:
 								remainingShipsToSelect.put(Ship.Type.TwoLong, remainingShipsToSelect.get(Ship.Type.TwoLong) - 1);
+
+								if (remainingShipsToSelect.get(Ship.Type.TwoLong) <= 0) {
+									selectedShip.setLength(0);
+								}
 								break;
 							case 3:
 								remainingShipsToSelect.put(Ship.Type.ThreeLong, remainingShipsToSelect.get(Ship.Type.ThreeLong) - 1);
+
+								if (remainingShipsToSelect.get(Ship.Type.ThreeLong) <= 0) {
+									selectedShip.setLength(0);
+								}
 								break;
 						}
-
-						selectedShip.setLength(0);
 
 						int totalNumberOfShipsRemaining = 0;
 						for (int remaining : remainingShipsToSelect.values()) {
 							totalNumberOfShipsRemaining += remaining;
 						}
 
-						if (totalNumberOfShipsRemaining == 0) {
+						if (totalNumberOfShipsRemaining <= 0) {
 							currentState = GameState.OwnTurn;
 						}
 
@@ -334,17 +346,17 @@ public class Game extends PApplet {
 					//Select ship from list
 					selectedShip.setOrientation(Ship.Orientation.Horizontal);
 
-					int topY = 100;
-					int bottomY = 100 + scale;
+					int topY = (int)shipListYPosition;
+					int bottomY = (int)(shipListYPosition + smallCellSize);
 
-					int leftX3Long = scale * 8;
-					int rightX3Long = leftX3Long + scale * 3;
+					int leftX3Long = (int)shipListXPosition;
+					int rightX3Long = leftX3Long + smallCellSize * 3;
 
-					int leftX2Long = scale * 13;
-					int rightX2Long = leftX2Long + scale * 2;
+					int leftX2Long = rightX3Long + smallCellSize;
+					int rightX2Long = leftX2Long + smallCellSize * 2;
 
-					int leftX1Long = scale * 17;
-					int rightX1Long = leftX1Long + scale;
+					int leftX1Long = rightX2Long + smallCellSize;
+					int rightX1Long = leftX1Long + smallCellSize;
 
 					fill(255, 0, 0);
 
@@ -367,16 +379,16 @@ public class Game extends PApplet {
 				}
 			}
 		} else {
-			int cellY = snapDown(mouseY - 100, scale) / scale;
-
-			if (mouseX > 0 && mouseX < 560 && mouseY > 100) {
+			if (isInsideOwnPlayField(mouseX, mouseY)) {
 				//Own field
-				int cellX = snapDown(mouseX, scale) / scale;
+				int cellX = snapDown(mouseX - ownPlayFieldXPosition, cellSize) / cellSize;
+				int cellY = snapDown(mouseY - ownPlayFieldYPosition, cellSize) / cellSize;
 
 				ownField.getShotAt(cellX, cellY);
-			} else if (mouseX > 960 && mouseX < 1520 && mouseY > 100) {
+			} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
 				//Enemy field
-				int cellX = snapDown(mouseX - 960, scale) / scale;
+				int cellX = snapDown(mouseX - enemyPlayFieldXPosition, cellSize) / cellSize;
+				int cellY = snapDown(mouseY - enemyPlayFieldYPosition, cellSize) / cellSize;
 
 				enemyField.getShotAt(cellX, cellY);
 			}
@@ -389,5 +401,15 @@ public class Game extends PApplet {
 
 	private boolean isInsideRect(int x, int y, int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
 		return (x > topLeftX && x < bottomRightX) && (y > topLeftY && y < bottomRightY);
+	}
+
+	private boolean isInsideOwnPlayField(int x, int y) {
+		return (x > ownPlayFieldXPosition && x < ownPlayFieldXPosition + playFieldSize
+				&& y > ownPlayFieldYPosition && y < ownPlayFieldYPosition + playFieldSize);
+	}
+
+	private boolean isInsideEnemyPlayField(int x, int y) {
+		return (x > enemyPlayFieldXPosition && x < enemyPlayFieldXPosition + playFieldSize
+				&& y > enemyPlayFieldYPosition && y < enemyPlayFieldYPosition + playFieldSize);
 	}
 }
