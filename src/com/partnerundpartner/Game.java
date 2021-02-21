@@ -14,29 +14,58 @@ public class Game extends PApplet {
 
 	private final int width;
 	private final int height;
-	private final int scale;
 	private final int bigTextSize;
 	private final int smallTextSize;
+	private final int edgeMargin;
+	private final int cellSize;
+	private final int playFieldSize;
+	private final int ownPlayFieldXPosition;
+	private final int ownPlayFieldYPosition;
+	private final int enemyPlayFieldXPosition;
+	private final int enemyPlayFieldYPosition;
+	private final int middleSectionXPosition;
+	private final int middleSectionYPosition;
+	private final int middleSectionWidth;
 
-	public Game(String title, int playFieldSize, int scale) {
-		this.scale = scale;
-		this.playFieldSize = playFieldSize;
+	private final int scale = 80;
+
+
+	public Game(int width, int playFieldCells) {
+		this.width = width;
+		this.playFieldCells = playFieldCells;
+
+		//Set height according to 16/9 aspect ratio
+		height = width * 9 / 16;
+
+		playFieldSize = (int)(width * 0.35);
+
+		cellSize = playFieldSize / playFieldCells;
+
+		edgeMargin = (int)(width * 0.05);
+
+		ownPlayFieldXPosition = edgeMargin;
+		ownPlayFieldYPosition = edgeMargin;
+
+		middleSectionXPosition = (int)(width * 0.4);
+		middleSectionYPosition = edgeMargin;
+		middleSectionWidth = (int)(width * 0.2);
+
+		enemyPlayFieldXPosition = (int)(width * 0.6);
+		enemyPlayFieldYPosition = edgeMargin;
+
 		bigTextSize = (int)(scale / 2f);
 		smallTextSize = (int)(bigTextSize * 0.75);
 
-		ownField = new PlayField(playFieldSize);
-		enemyField = new PlayField(playFieldSize);
-
-		width = scale * (playFieldSize * 2 + 5);
-		height = scale * (playFieldSize + 2);
+		ownField = new PlayField(playFieldCells);
+		enemyField = new PlayField(playFieldCells);
 
 		//Open window
-		String[] processingArgs = {title};
+		String[] processingArgs = {"Schiffe Versenken"};
 		PApplet.runSketch(processingArgs, this);
 	}
 
 	//Game variables
-	private final int playFieldSize;
+	private final int playFieldCells;
 	private final PlayField ownField;
 	private final PlayField enemyField;
 
@@ -72,21 +101,21 @@ public class Game extends PApplet {
 
 		switch (currentState) {
 			case PickShips:
-				drawPlayField("Eigenes Feld", scale, scale, ownField.getMap());
+				drawPlayField("Eigenes Feld", edgeMargin, edgeMargin, ownField.getMap());
 
-				drawShipList(scale * (playFieldSize + 2), scale);
+				drawShipList(scale * (playFieldCells + 2), scale);
 				drawShipPlaceholder();
 				break;
 
 			case EnemyTurn:
 			case OwnTurn:
-				drawPlayField("Eigenes Feld", scale, scale, ownField.getMap());
+				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap());
 
-				drawMiddleSection("Info", scale * (playFieldSize + 1), scale);
+				drawMiddleSection("Info", middleSectionXPosition, middleSectionYPosition);
 
-				drawPlayField("Gegnerisches Feld", scale * (playFieldSize + 4), scale, enemyField.getMap());
+				drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap());
 
-				drawMiddleSectionContents(scale * (playFieldSize + 1), scale);
+				//drawMiddleSectionContents(scale * (playFieldCells + 1), scale);
 				break;
 		}
 	}
@@ -122,7 +151,7 @@ public class Game extends PApplet {
 						break;
 				}
 
-				rect(x + cellX * scale, y + cellY * scale, scale, scale);
+				rect(x + cellX * cellSize, y + cellY * cellSize, cellSize, cellSize);
 			}
 		}
 
@@ -135,13 +164,11 @@ public class Game extends PApplet {
 		textSize(bigTextSize);
 		fill(255);
 
-		final int width = scale * 3;
-
-		text(title, x + width / 2f - textWidth(title) / 2, y - scale / 4f);
+		text(title, x + middleSectionWidth / 2f - textWidth(title) / 2, y - scale / 4f);
 
 		fill(24, 24, 24);
 
-		rect(x, y, width, scale * playFieldSize);
+		rect(x, y, middleSectionWidth, scale * playFieldCells);
 
 		popStyle();
 	}
@@ -223,14 +250,14 @@ public class Game extends PApplet {
 
 		fill(128, 128, 128);
 
-		if (mouseX > scale && mouseX < scale * (playFieldSize + 1) && mouseY > scale && mouseY < scale * (playFieldSize + 1) && selectedShip.getLength() > 0) {
+		if (mouseX > scale && mouseX < scale * (playFieldCells + 1) && mouseY > scale && mouseY < scale * (playFieldCells + 1) && selectedShip.getLength() > 0) {
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
-					if (x + scale * i < scale * (playFieldSize + 1)) {
+					if (x + scale * i < scale * (playFieldCells + 1)) {
 						rect(x + scale * i, y, scale, scale);
 					}
 				} else {
-					if (y + scale * i < scale * (playFieldSize + 1)) {
+					if (y + scale * i < scale * (playFieldCells + 1)) {
 						rect(x, y + scale * i, scale, scale);
 					}
 				}
