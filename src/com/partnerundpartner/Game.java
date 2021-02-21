@@ -46,7 +46,7 @@ public class Game extends PApplet {
 		startingWidth = width;
 
 		//Set height according to 16/9 aspect ratio
-		startingHeight = width * 9 / 16;
+		startingHeight = startingWidth * 9 / 16;
 
 		cellSize = (int)(startingWidth * 0.35f / playFieldCells);
 		smallCellSize = (int)(startingWidth * 0.06f);
@@ -98,7 +98,7 @@ public class Game extends PApplet {
 	@Override
 	public void settings() {
 		//Called once at program start
-		size(width, height);
+		size(startingWidth, startingHeight);
 
 		remainingShipsToSelect.put(Ship.Type.OneLong, 3);
 		remainingShipsToSelect.put(Ship.Type.TwoLong, 2);
@@ -176,7 +176,7 @@ public class Game extends PApplet {
 		bigTextSize = width / 40f;
 		smallTextSize = bigTextSize * 0.7f;
 
-		surface.setSize(width, height);
+		//surface.setSize(width, height);
 
 		System.out.println(width + " " + height);
 	}
@@ -257,6 +257,8 @@ public class Game extends PApplet {
 	private void drawShipList(float x, float y) {
 		//3 long
 		pushStyle();
+
+		textSize(bigTextSize);
 
 		if (selectedShip.getLength() == 3) {
 			fill(128, 128, 128);
