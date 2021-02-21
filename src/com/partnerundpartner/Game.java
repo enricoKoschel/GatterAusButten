@@ -14,18 +14,29 @@ public class Game extends PApplet {
 
 	private final int width;
 	private final int height;
-	private final int bigTextSize;
-	private final int smallTextSize;
-	private final int edgeMargin;
-	private final int cellSize;
-	private final int playFieldSize;
-	private final int ownPlayFieldXPosition;
-	private final int ownPlayFieldYPosition;
-	private final int enemyPlayFieldXPosition;
-	private final int enemyPlayFieldYPosition;
-	private final int middleSectionXPosition;
-	private final int middleSectionYPosition;
-	private final int middleSectionWidth;
+
+	private final float bigTextSize;
+	private final float smallTextSize;
+
+	private final float edgeMargin;
+
+	private final float cellSize;
+
+	private final float playFieldSize;
+
+	private final float ownPlayFieldXPosition;
+	private final float ownPlayFieldYPosition;
+
+	private final float enemyPlayFieldXPosition;
+	private final float enemyPlayFieldYPosition;
+
+	private final float middleSectionXPosition;
+	private final float middleSectionYPosition;
+	private final float middleSectionWidth;
+	private final float middleSectionHeight;
+
+	private final float shipListXPosition;
+	private final float shipListYPosition;
 
 	private final int scale = 80;
 
@@ -37,24 +48,28 @@ public class Game extends PApplet {
 		//Set height according to 16/9 aspect ratio
 		height = width * 9 / 16;
 
-		playFieldSize = (int)(width * 0.35);
+		playFieldSize = (float)(width * 0.35);
 
 		cellSize = playFieldSize / playFieldCells;
 
-		edgeMargin = (int)(width * 0.05);
+		edgeMargin = (float)(width * 0.05);
 
 		ownPlayFieldXPosition = edgeMargin;
 		ownPlayFieldYPosition = edgeMargin;
 
-		middleSectionXPosition = (int)(width * 0.4);
+		middleSectionXPosition = (float)(width * 0.4);
 		middleSectionYPosition = edgeMargin;
-		middleSectionWidth = (int)(width * 0.2);
+		middleSectionWidth = (float)(width * 0.2);
+		middleSectionHeight = playFieldSize;
 
-		enemyPlayFieldXPosition = (int)(width * 0.6);
+		enemyPlayFieldXPosition = (float)(width * 0.6);
 		enemyPlayFieldYPosition = edgeMargin;
 
-		bigTextSize = (int)(scale / 2f);
-		smallTextSize = (int)(bigTextSize * 0.75);
+		shipListXPosition = (float)(width * 0.46);
+		shipListYPosition = edgeMargin;
+
+		bigTextSize = width / 40f;
+		smallTextSize = (float)(bigTextSize * 0.7);
 
 		ownField = new PlayField(playFieldCells);
 		enemyField = new PlayField(playFieldCells);
@@ -101,9 +116,9 @@ public class Game extends PApplet {
 
 		switch (currentState) {
 			case PickShips:
-				drawPlayField("Eigenes Feld", edgeMargin, edgeMargin, ownField.getMap());
+				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap());
 
-				drawShipList(scale * (playFieldCells + 2), scale);
+				drawShipList(shipListXPosition, shipListYPosition);
 				drawShipPlaceholder();
 				break;
 
@@ -111,11 +126,11 @@ public class Game extends PApplet {
 			case OwnTurn:
 				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap());
 
-				drawMiddleSection("Info", middleSectionXPosition, middleSectionYPosition);
+				drawMiddleSection("Verlauf", middleSectionXPosition, middleSectionYPosition);
 
 				drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap());
 
-				//drawMiddleSectionContents(scale * (playFieldCells + 1), scale);
+				drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
 				break;
 		}
 	}
@@ -126,13 +141,10 @@ public class Game extends PApplet {
 		textSize(bigTextSize);
 		fill(255);
 
-		final int size = map.length;
-		final int width = scale * size;
+		text(title, x + playFieldSize / 2f - textWidth(title) / 2, y - width / 100f);
 
-		text(title, x + width / 2f - textWidth(title) / 2, y - scale / 4f);
-
-		for (int cellY = 0; cellY < size; cellY++) {
-			for (int cellX = 0; cellX < size; cellX++) {
+		for (int cellY = 0; cellY < playFieldCells; cellY++) {
+			for (int cellX = 0; cellX < playFieldCells; cellX++) {
 				switch (map[cellX][cellY]) {
 					case Living_Ship:
 						fill(0, 255, 0);
@@ -164,11 +176,11 @@ public class Game extends PApplet {
 		textSize(bigTextSize);
 		fill(255);
 
-		text(title, x + middleSectionWidth / 2f - textWidth(title) / 2, y - scale / 4f);
+		text(title, x + middleSectionWidth / 2f - textWidth(title) / 2, y - width / 100f);
 
 		fill(24, 24, 24);
 
-		rect(x, y, middleSectionWidth, scale * playFieldCells);
+		rect(x, y, middleSectionWidth, middleSectionHeight);
 
 		popStyle();
 	}
@@ -179,20 +191,18 @@ public class Game extends PApplet {
 		fill(255);
 		textSize(smallTextSize);
 
-		final int width = scale * 3;
-
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
 
-			double textY = y * 1.5 + i * bigTextSize;
+			double textY = y + width / 50f + i * bigTextSize;
 
 			//Remove text from list if offscreen
-			if (textY >= height - scale * 1.5) {
+			if (textY >= height - cellSize * 1.5) {
 				infoText.remove(infoText.size() - 1 - i);
 				i--;
 			}
 
-			text(text, x + width / 2f - textWidth(text) / 2, (float)textY);
+			text(text, x + middleSectionWidth / 2f - textWidth(text) / 2, (float)textY);
 		}
 
 		popStyle();
@@ -202,41 +212,44 @@ public class Game extends PApplet {
 		//3 long
 		pushStyle();
 
+		//Ship list screen uses different cell size
+		int cellSize = (int)(width * 0.06);
+
 		if (selectedShip.getLength() == 3) {
 			fill(128, 128, 128);
 		} else {
 			fill(255);
 		}
 
-		rect(x, y, scale, scale);
-		rect(x + scale, y, scale, scale);
-		rect(x + scale * 2, y, scale, scale);
+		rect(x, y, cellSize, cellSize);
+		rect(x + cellSize, y, cellSize, cellSize);
+		rect(x + cellSize * 2, y, cellSize, cellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + scale * 3, y + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + cellSize * 3, y + cellSize);
 
 		//2 long
 		if (selectedShip.getLength() == 2) {
 			fill(128, 128, 128);
 		}
 
-		float xPos2Long = x + scale * 4.5f;
-		rect(xPos2Long, y, scale, scale);
-		rect(xPos2Long + scale, y, scale, scale);
+		int xPos2Long = (int)(width * 0.7);
+		rect(xPos2Long, y, cellSize, cellSize);
+		rect(xPos2Long + cellSize, y, cellSize, cellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + scale * 2, y + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + cellSize * 2, y + cellSize);
 
 		//1 long
 		if (selectedShip.getLength() == 1) {
 			fill(128, 128, 128);
 		}
 
-		float xPos1Long = x + scale * 8;
-		rect(xPos1Long, y, scale, scale);
+		int xPos1Long = (int)(width * 0.88);
+		rect(xPos1Long, y, cellSize, cellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + scale, y + scale);
+		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + cellSize, y + cellSize);
 
 		popStyle();
 	}

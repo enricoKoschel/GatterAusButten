@@ -2,6 +2,9 @@ package com.partnerundpartner;
 
 public class Main {
 	public static void main(String[] args) {
-		Game gui = new Game(1280, 7);
+		new Game(1920, 10);
+		new Game(500, 10);
+		new Game(1920, 5);
+		new Game(500, 5);
 	}
 }
