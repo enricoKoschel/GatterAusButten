@@ -12,66 +12,65 @@ public class Game extends PApplet {
 		PickShips
 	}
 
-	private final int width;
-	private final int height;
+	private final int startingWidth;
+	private final int startingHeight;
 
-	private final float bigTextSize;
-	private final float smallTextSize;
+	private float bigTextSize;
+	private float smallTextSize;
 
-	private final float edgeMargin;
+	private float edgeMargin;
 
-	private final int cellSize;
-	private final int smallCellSize;
+	private int cellSize;
+	private int smallCellSize;
 
-	private final float playFieldSize;
+	private float playFieldSize;
 
-	private final float ownPlayFieldXPosition;
-	private final float ownPlayFieldYPosition;
+	private float ownPlayFieldXPosition;
+	private float ownPlayFieldYPosition;
 
-	private final float enemyPlayFieldXPosition;
-	private final float enemyPlayFieldYPosition;
+	private float enemyPlayFieldXPosition;
+	private float enemyPlayFieldYPosition;
 
-	private final float middleSectionXPosition;
-	private final float middleSectionYPosition;
-	private final float middleSectionWidth;
-	private final float middleSectionHeight;
+	private float middleSectionXPosition;
+	private float middleSectionYPosition;
+	private float middleSectionWidth;
+	private float middleSectionHeight;
 
-	private final float shipListXPosition;
-	private final float shipListYPosition;
-
-	private final int scale = 80;
+	private float shipListXPosition;
+	private float shipListYPosition;
 
 
 	public Game(int width, int playFieldCells) {
-		this.width = width;
 		this.playFieldCells = playFieldCells;
 
+		startingWidth = width;
+
 		//Set height according to 16/9 aspect ratio
-		height = width * 9 / 16;
+		startingHeight = width * 9 / 16;
 
-		playFieldSize = (float)(width * 0.35);
+		cellSize = (int)(startingWidth * 0.35f / playFieldCells);
+		smallCellSize = (int)(startingWidth * 0.06f);
 
-		cellSize = (int)(playFieldSize / playFieldCells);
-		smallCellSize = (int)(width * 0.06);
+		playFieldSize = cellSize * playFieldCells;
 
-		edgeMargin = (float)(width * 0.05);
+		edgeMargin = startingWidth * 0.05f;
 
 		ownPlayFieldXPosition = edgeMargin;
 		ownPlayFieldYPosition = edgeMargin;
 
-		middleSectionXPosition = (float)(width * 0.4);
+		middleSectionXPosition = startingWidth * 0.4f;
 		middleSectionYPosition = edgeMargin;
-		middleSectionWidth = (float)(width * 0.2);
+		middleSectionWidth = startingWidth * 0.2f;
 		middleSectionHeight = playFieldSize;
 
-		enemyPlayFieldXPosition = (float)(width * 0.6);
+		enemyPlayFieldXPosition = startingWidth * 0.6f;
 		enemyPlayFieldYPosition = edgeMargin;
 
-		shipListXPosition = (float)(width * 0.46);
+		shipListXPosition = startingWidth * 0.46f;
 		shipListYPosition = edgeMargin;
 
-		bigTextSize = width / 40f;
-		smallTextSize = (float)(bigTextSize * 0.7);
+		bigTextSize = startingWidth / 40f;
+		smallTextSize = bigTextSize * 0.7f;
 
 		ownField = new PlayField(playFieldCells);
 		enemyField = new PlayField(playFieldCells);
@@ -113,9 +112,20 @@ public class Game extends PApplet {
 	}
 
 	@Override
+	public void setup(){
+		surface.setResizable(true);
+	}
+
+	@Override
 	public void draw() {
 		//Called 60 times per second
 		background(24, 24, 24);
+
+		updateLayout();
+
+		//TODO remove
+		//System.out.println(cellSize * playFieldCells + ownPlayFieldXPosition + " " + middleSectionXPosition);
+		//System.out.println(playFieldSize + ownPlayFieldXPosition + " " + middleSectionXPosition);
 
 		switch (currentState) {
 			case PickShips:
@@ -136,6 +146,39 @@ public class Game extends PApplet {
 				drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
 				break;
 		}
+	}
+
+	private void updateLayout(){
+		//Set height according to 16/9 aspect ratio
+		height = width * 9 / 16;
+
+		cellSize = (int)(width * 0.35f / playFieldCells);
+		smallCellSize = (int)(width * 0.06f);
+
+		playFieldSize = cellSize * playFieldCells;
+
+		edgeMargin = width * 0.05f;
+
+		ownPlayFieldXPosition = edgeMargin;
+		ownPlayFieldYPosition = edgeMargin;
+
+		middleSectionXPosition = width * 0.4f;
+		middleSectionYPosition = edgeMargin;
+		middleSectionWidth = width * 0.2f;
+		middleSectionHeight = playFieldSize;
+
+		enemyPlayFieldXPosition = width * 0.6f;
+		enemyPlayFieldYPosition = edgeMargin;
+
+		shipListXPosition = width * 0.46f;
+		shipListYPosition = edgeMargin;
+
+		bigTextSize = width / 40f;
+		smallTextSize = bigTextSize * 0.7f;
+
+		surface.setSize(width, height);
+
+		System.out.println(width + " " + height);
 	}
 
 	private void drawPlayField(String title, float x, float y, Ship.State[][] map) {
@@ -379,19 +422,24 @@ public class Game extends PApplet {
 				}
 			}
 		} else {
-			if (isInsideOwnPlayField(mouseX, mouseY)) {
-				//Own field
-				int cellX = snapDown(mouseX - ownPlayFieldXPosition, cellSize) / cellSize;
-				int cellY = snapDown(mouseY - ownPlayFieldYPosition, cellSize) / cellSize;
+			try{
+				if (isInsideOwnPlayField(mouseX, mouseY)) {
+					//Own field
+					int cellX = snapDown(mouseX - ownPlayFieldXPosition, cellSize) / cellSize;
+					int cellY = snapDown(mouseY - ownPlayFieldYPosition, cellSize) / cellSize;
 
-				ownField.getShotAt(cellX, cellY);
-			} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
-				//Enemy field
-				int cellX = snapDown(mouseX - enemyPlayFieldXPosition, cellSize) / cellSize;
-				int cellY = snapDown(mouseY - enemyPlayFieldYPosition, cellSize) / cellSize;
+					ownField.getShotAt(cellX, cellY);
+				} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
+					//Enemy field
+					int cellX = snapDown(mouseX - enemyPlayFieldXPosition, cellSize) / cellSize;
+					int cellY = snapDown(mouseY - enemyPlayFieldYPosition, cellSize) / cellSize;
 
-				enemyField.getShotAt(cellX, cellY);
+					enemyField.getShotAt(cellX, cellY);
+				}
+			}catch (Exception e){
+				int a = 1;
 			}
+
 		}
 	}
 
@@ -404,8 +452,8 @@ public class Game extends PApplet {
 	}
 
 	private boolean isInsideOwnPlayField(int x, int y) {
-		return (x > ownPlayFieldXPosition && x < ownPlayFieldXPosition + playFieldSize
-				&& y > ownPlayFieldYPosition && y < ownPlayFieldYPosition + playFieldSize);
+		return (x >= ownPlayFieldXPosition && x < ownPlayFieldXPosition + playFieldSize
+				&& y >= ownPlayFieldYPosition && y < ownPlayFieldYPosition + playFieldSize);
 	}
 
 	private boolean isInsideEnemyPlayField(int x, int y) {
