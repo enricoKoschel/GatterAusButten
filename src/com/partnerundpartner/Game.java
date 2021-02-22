@@ -270,7 +270,7 @@ public class Game extends PApplet {
 			fill(128, 128, 128);
 		}
 
-		int xPos2Long = (int)(width * 0.7);
+		float xPos2Long = width * 0.7f;
 		rect(xPos2Long, y, smallCellSize, smallCellSize);
 		rect(xPos2Long + smallCellSize, y, smallCellSize, smallCellSize);
 
@@ -282,7 +282,7 @@ public class Game extends PApplet {
 			fill(128, 128, 128);
 		}
 
-		int xPos1Long = (int)(width * 0.88);
+		float xPos1Long = width * 0.88f;
 		rect(xPos1Long, y, smallCellSize, smallCellSize);
 
 		fill(255);
@@ -438,12 +438,12 @@ public class Game extends PApplet {
 		return (x > topLeftX && x < bottomRightX) && (y > topLeftY && y < bottomRightY);
 	}
 
-	private boolean isInsideOwnPlayField(int x, int y) {
+	private boolean isInsideOwnPlayField(float x, float y) {
 		return (x >= ownPlayFieldXPosition && x < ownPlayFieldXPosition + playFieldSize
 				&& y >= ownPlayFieldYPosition && y < ownPlayFieldYPosition + playFieldSize);
 	}
 
-	private boolean isInsideEnemyPlayField(int x, int y) {
+	private boolean isInsideEnemyPlayField(float x, float y) {
 		return (x > enemyPlayFieldXPosition && x < enemyPlayFieldXPosition + playFieldSize
 				&& y > enemyPlayFieldYPosition && y < enemyPlayFieldYPosition + playFieldSize);
 	}
