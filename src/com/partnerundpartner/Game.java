@@ -131,26 +131,26 @@ public class Game extends PApplet {
 			surface.setSize(width , width * 9 / 16);
 		}
 
-		cellSize = width * 0.35f / playFieldCells;
+		cellSize = width * 0.39f / playFieldCells;
 		smallCellSize = width * 0.06f;
 
 		playFieldSize = cellSize * playFieldCells;
 
-		edgeMargin = width * 0.05f;
+		edgeMargin = width * 0.01f;
 
 		ownPlayFieldXPosition = edgeMargin;
-		ownPlayFieldYPosition = edgeMargin;
+		ownPlayFieldYPosition = edgeMargin * 6;
 
 		middleSectionXPosition = width * 0.4f;
-		middleSectionYPosition = edgeMargin;
+		middleSectionYPosition = ownPlayFieldYPosition;
 		middleSectionWidth = width * 0.2f;
 		middleSectionHeight = playFieldSize;
 
 		enemyPlayFieldXPosition = width * 0.6f;
-		enemyPlayFieldYPosition = edgeMargin;
+		enemyPlayFieldYPosition = ownPlayFieldYPosition;
 
 		shipListXPosition = width * 0.46f;
-		shipListYPosition = edgeMargin;
+		shipListYPosition = ownPlayFieldYPosition;
 
 		bigTextSize = width / 40f;
 		smallTextSize = bigTextSize * 0.7f;
