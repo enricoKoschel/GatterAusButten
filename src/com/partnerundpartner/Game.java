@@ -48,30 +48,6 @@ public class Game extends PApplet {
 		//Set height according to 16/9 aspect ratio
 		startingHeight = startingWidth * 9 / 16;
 
-		cellSize = startingWidth * 0.35f / playFieldCells;
-		smallCellSize = startingWidth * 0.06f;
-
-		playFieldSize = cellSize * playFieldCells;
-
-		edgeMargin = startingWidth * 0.05f;
-
-		ownPlayFieldXPosition = edgeMargin;
-		ownPlayFieldYPosition = edgeMargin;
-
-		middleSectionXPosition = startingWidth * 0.4f;
-		middleSectionYPosition = edgeMargin;
-		middleSectionWidth = startingWidth * 0.2f;
-		middleSectionHeight = playFieldSize;
-
-		enemyPlayFieldXPosition = startingWidth * 0.6f;
-		enemyPlayFieldYPosition = edgeMargin;
-
-		shipListXPosition = startingWidth * 0.46f;
-		shipListYPosition = edgeMargin;
-
-		bigTextSize = startingWidth / 40f;
-		smallTextSize = bigTextSize * 0.7f;
-
 		ownField = new PlayField(playFieldCells);
 		enemyField = new PlayField(playFieldCells);
 
