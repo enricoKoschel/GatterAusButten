@@ -48,8 +48,8 @@ public class Game extends PApplet {
 		//Set height according to 16/9 aspect ratio
 		startingHeight = startingWidth * 9 / 16;
 
-		cellSize = (int)(startingWidth * 0.35f / playFieldCells);
-		smallCellSize = (int)(startingWidth * 0.06f);
+		cellSize = startingWidth * 0.35f / playFieldCells;
+		smallCellSize = startingWidth * 0.06f;
 
 		playFieldSize = cellSize * playFieldCells;
 
@@ -295,20 +295,19 @@ public class Game extends PApplet {
 		int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
 		int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
 
-		int x = (int)(cellX * cellSize + ownPlayFieldXPosition);
-		int y = (int)(cellY * cellSize + ownPlayFieldYPosition);
+		float x = cellX * cellSize + ownPlayFieldXPosition;
+		float y = cellY * cellSize + ownPlayFieldYPosition;
 
 		fill(128, 128, 128);
 
-		//FIXME Ships sometimes get displayed outside of the play field and get cut off too soon
 		if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
-					if (x + cellSize * i < cellSize * playFieldCells) {
+					if (x + cellSize * i < ownPlayFieldXPosition + playFieldSize) {
 						rect(x + cellSize * i, y, cellSize, cellSize);
 					}
 				} else {
-					if (y + cellSize * i < cellSize * playFieldCells) {
+					if (y + cellSize * i < ownPlayFieldYPosition + playFieldSize) {
 						rect(x, y + cellSize * i, cellSize, cellSize);
 					}
 				}
@@ -415,24 +414,19 @@ public class Game extends PApplet {
 				}
 			}
 		} else {
-			try {
-				if (isInsideOwnPlayField(mouseX, mouseY)) {
-					//Own field
-					int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
-					int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
+			if (isInsideOwnPlayField(mouseX, mouseY)) {
+				//Own field
+				int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
+				int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
 
-					ownField.getShotAt(cellX, cellY);
-				} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
-					//Enemy field
-					int cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
-					int cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
+				ownField.getShotAt(cellX, cellY);
+			} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
+				//Enemy field
+				int cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
+				int cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
 
-					enemyField.getShotAt(cellX, cellY);
-				}
-			} catch (Exception e) {
-				int a = 1;
+				enemyField.getShotAt(cellX, cellY);
 			}
-
 		}
 	}
 
