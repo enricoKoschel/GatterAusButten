@@ -16,6 +16,7 @@ public class Game extends PApplet {
 	private final int startingHeight;
 
 	private float bigTextSize;
+	private float middleTextSize;
 	private float smallTextSize;
 
 	private float edgeMargin;
@@ -154,7 +155,8 @@ public class Game extends PApplet {
 		shipListYPosition = ownPlayFieldYPosition;
 
 		bigTextSize = width / 40f;
-		smallTextSize = bigTextSize * 0.7f;
+		middleTextSize = bigTextSize * 0.7f;
+		smallTextSize = middleTextSize * 0.5f;
 	}
 
 	private void drawPlayField(String title, float x, float y, Ship.State[][] map) {
@@ -164,6 +166,8 @@ public class Game extends PApplet {
 		fill(255);
 
 		text(title, x + playFieldSize / 2f - textWidth(title) / 2, y - width / 100f);
+
+		textSize(middleTextSize);
 
 		for (int cellY = 0; cellY < playFieldCells; cellY++) {
 			for (int cellX = 0; cellX < playFieldCells; cellX++) {
@@ -185,7 +189,15 @@ public class Game extends PApplet {
 						break;
 				}
 
-				rect(x + cellX * cellSize, y + cellY * cellSize, cellSize, cellSize);
+				float finalX = x + cellX * cellSize;
+				float finalY = y + cellY * cellSize;
+
+				rect(finalX, finalY, cellSize, cellSize);
+
+				//Cell number on the bottom left of each cell
+				fill(0, 0, 128);
+				text((char)(65 + cellY) + "" + (cellX + 1), finalX + width * 0.001f,
+						finalY + cellSize - width * 0.001f);
 			}
 		}
 
@@ -211,7 +223,7 @@ public class Game extends PApplet {
 		pushStyle();
 
 		fill(255);
-		textSize(smallTextSize);
+		textSize(middleTextSize);
 
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
@@ -288,11 +300,23 @@ public class Game extends PApplet {
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
 					if (x + cellSize * i < ownPlayFieldXPosition + playFieldSize) {
+						fill(128, 128, 128);
 						rect(x + cellSize * i, y, cellSize, cellSize);
+
+						//Cell number on the bottom left of each cell
+						fill(0, 0, 128);
+						text((char)(65 + cellY) + "" + (cellX + i + 1), x + cellSize * i + width * 0.001f,
+								y + cellSize - width * 0.001f);
 					}
 				} else {
 					if (y + cellSize * i < ownPlayFieldYPosition + playFieldSize) {
+						fill(128, 128, 128);
 						rect(x, y + cellSize * i, cellSize, cellSize);
+
+						//Cell number on the bottom left of each cell
+						fill(0, 0, 128);
+						text((char)(65 + cellY + i) + "" + (cellX + 1), x + width * 0.001f,
+								y + cellSize * (i + 1) - width * 0.001f);
 					}
 				}
 			}
