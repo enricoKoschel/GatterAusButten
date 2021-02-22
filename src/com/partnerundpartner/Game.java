@@ -39,9 +39,12 @@ public class Game extends PApplet {
 	private float shipListXPosition;
 	private float shipListYPosition;
 
+	//See updateLayout()
+	private final boolean funkyResize;
 
-	public Game(int width, int playFieldCells) {
+	public Game(int width, int playFieldCells, boolean funkyResize) {
 		this.playFieldCells = playFieldCells;
+		this.funkyResize = funkyResize;
 
 		startingWidth = width;
 
@@ -121,8 +124,12 @@ public class Game extends PApplet {
 	}
 
 	private void updateLayout() {
-		//Set height according to 16/9 aspect ratio
-		height = width * 9 / 16;
+		//If funky resize is enabled and the window is not currently in 16/9 aspect ratio,
+		//force a resize prioritizing the width and forcing the height.
+		//Resizing sometimes results in weird artifacts and window sizes, this is Processing fault.
+		if(funkyResize && height != width * 9 / 16){
+			surface.setSize(width , width * 9 / 16);
+		}
 
 		cellSize = width * 0.35f / playFieldCells;
 		smallCellSize = width * 0.06f;
