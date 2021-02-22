@@ -85,11 +85,15 @@ public class Game extends PApplet {
 		remainingShipsToSelect.put(Ship.Type.TwoLong, 2);
 		remainingShipsToSelect.put(Ship.Type.ThreeLong, 2);
 
-		infoText.add("1. Player hit A7");
-		infoText.add("2. CPU hit B6");
-		infoText.add("3. Player missed");
-
-		//enemyField.addShip(1, 1, 6, Ship.Orientation.Horizontal);
+		//TODO remove
+		infoText.add("getroffen");
+		infoText.add("Spieler schießt auf A7");
+		infoText.add("");
+		infoText.add("verfehlt");
+		infoText.add("Gegner schießt auf C3");
+		infoText.add("");
+		infoText.add("versenkt");
+		infoText.add("Spieler schießt auf G6");
 	}
 
 	@Override
@@ -230,9 +234,11 @@ public class Game extends PApplet {
 
 			float textY = y + width / 50f + i * (width / 45f);
 
-			//Remove text from list if offscreen
+			//Remove all 3 connected texts from list if one is offscreen
 			if (textY >= y - width / 50f + middleSectionHeight) {
 				infoText.remove(infoText.size() - 1 - i);
+				infoText.remove(infoText.size() - i);
+				infoText.remove(infoText.size() - i + 1);
 				i--;
 			}
 
