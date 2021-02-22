@@ -79,6 +79,7 @@ public class Game extends PApplet {
 		//Called once at program start
 		size(startingWidth, startingHeight);
 
+		//Placeable ship amounts
 		remainingShipsToSelect.put(Ship.Type.OneLong, 3);
 		remainingShipsToSelect.put(Ship.Type.TwoLong, 2);
 		remainingShipsToSelect.put(Ship.Type.ThreeLong, 2);
@@ -215,7 +216,7 @@ public class Game extends PApplet {
 		for (int i = 0; i < infoText.size(); i++) {
 			String text = infoText.get(infoText.size() - 1 - i);
 
-			double textY = y + width / 50f + i * (width / 45f);
+			float textY = y + width / 50f + i * (width / 45f);
 
 			//Remove text from list if offscreen
 			if (textY >= y - width / 50f + middleSectionHeight) {
@@ -223,7 +224,7 @@ public class Game extends PApplet {
 				i--;
 			}
 
-			text(text, x + middleSectionWidth / 2f - textWidth(text) / 2, (float)textY);
+			text(text, x + middleSectionWidth / 2f - textWidth(text) / 2, textY);
 		}
 
 		popStyle();

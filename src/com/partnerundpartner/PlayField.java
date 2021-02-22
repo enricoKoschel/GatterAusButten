@@ -3,7 +3,6 @@ package com.partnerundpartner;
 import java.util.ArrayList;
 
 public class PlayField {
-	private final int size;
 	private final Ship.State[][] map;
 	private final ArrayList<Ship> livingShips;
 
@@ -14,8 +13,6 @@ public class PlayField {
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) map[x][y] = Ship.State.Water;
 		}
-
-		this.size = size;
 	}
 
 	public Ship.State stateAt(int x, int y) {
@@ -64,10 +61,6 @@ public class PlayField {
 	}
 
 	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
-		//if(){
-		//
-		//}
-
 		livingShips.add(new Ship(x, y, length, orientation));
 
 		for (int i = 0; i < length; i++) {
