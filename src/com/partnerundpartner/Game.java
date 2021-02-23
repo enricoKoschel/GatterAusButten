@@ -109,7 +109,7 @@ public class Game extends PApplet {
 
 		switch (currentState) {
 			case PickShips:
-				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap());
+				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
 
 				drawShipList(shipListXPosition, shipListYPosition);
 				drawShipPlaceholder();
@@ -117,11 +117,11 @@ public class Game extends PApplet {
 
 			case EnemyTurn:
 			case OwnTurn:
-				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap());
+				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
 
 				drawMiddleSection("Verlauf", middleSectionXPosition, middleSectionYPosition);
 
-				drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap());
+				drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap(), true);
 
 				drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
 				break;
@@ -161,7 +161,7 @@ public class Game extends PApplet {
 		middleTextSize = bigTextSize * 0.7f;
 	}
 
-	private void drawPlayField(String title, float x, float y, Ship.State[][] map) {
+	private void drawPlayField(String title, float x, float y, Ship.State[][] map, boolean isEnemy) {
 		pushStyle();
 
 		textSize(bigTextSize);
@@ -202,6 +202,17 @@ public class Game extends PApplet {
 						finalY + cellSize - width * 0.001f);
 			}
 		}
+
+		//Text to show whose turn it is
+		textSize(bigTextSize);
+		fill(255);
+
+		String turnText = "";
+
+		if (isEnemy && currentState == GameState.EnemyTurn) turnText = "Gegner ist dran!";
+		else if (!isEnemy && currentState == GameState.OwnTurn) turnText = "Du bist dran!";
+
+		text(turnText, x + playFieldSize / 2f - textWidth(turnText) / 2, y + width / 40f + playFieldSize);
 
 		popStyle();
 	}
