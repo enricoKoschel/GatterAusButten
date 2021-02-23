@@ -43,7 +43,7 @@ public class PlayField {
 			changeStateAt(x, y, Ship.State.Hit_Ship);
 		}
 
-		for(Ship ship : livingShips){
+		for (Ship ship : livingShips) {
 			if (ship.getHealth() <= 0) {
 				int shipX = ship.getX();
 				int shipY = ship.getY();
@@ -64,7 +64,7 @@ public class PlayField {
 	}
 
 	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
-		if(!isValidShipPosition(x, y, length, orientation)) return false;
+		if (!isValidShipPosition(x, y, length, orientation)) return false;
 
 		livingShips.add(new Ship(x, y, length, orientation));
 
@@ -79,20 +79,37 @@ public class PlayField {
 		return true;
 	}
 
-	public boolean isValidShipPosition(int x, int y, int length, Ship.Orientation orientation){
+	public boolean isValidShipPosition(int x, int y, int length, Ship.Orientation orientation) {
 		for (int i = 0; i < length; i++) {
-			if(orientation == Ship.Orientation.Horizontal){
-				if(!(x + i < size && y < size && map[x + i][y] == Ship.State.Water)){
-					return false;
-				}
-			}else{
-				if(!(x < size && y + i < size && map[x][y + i] == Ship.State.Water)){
-					return false;
-				}
+			if (orientation == Ship.Orientation.Horizontal) {
+				if (isInvalidSingleShipPosition(x + i, y) || areSurroundingShipsInvalid(x + i, y)) return false;
+			} else {
+				if (isInvalidSingleShipPosition(x, y + i) || areSurroundingShipsInvalid(x, y + i)) return false;
 			}
 		}
 
 		return true;
+	}
+
+	private boolean areSurroundingShipsInvalid(int x, int y) {
+		//Surrounding ships (diagonals are ignored)
+		//X,X  0,-1 X,X
+		//-1,0 0,0 +1,0
+		//X,X  0,+1 X,X
+
+		return isInvalidSingleShipPositionNoEdges(x, y - 1) || isInvalidSingleShipPositionNoEdges(x - 1, y)
+				|| isInvalidSingleShipPositionNoEdges(x, y) || isInvalidSingleShipPositionNoEdges(x + 1, y)
+				|| isInvalidSingleShipPositionNoEdges(x, y + 1);
+	}
+
+	private boolean isInvalidSingleShipPosition(int x, int y) {
+		return x < 0 || x >= size || y < 0 || y >= size || map[x][y] != Ship.State.Water;
+	}
+
+	private boolean isInvalidSingleShipPositionNoEdges(int x, int y) {
+		if (x < 0 || x >= size || y < 0 || y >= size) return false;
+
+		return map[x][y] != Ship.State.Water;
 	}
 
 	public boolean getShotAt(int x, int y) {
@@ -115,7 +132,7 @@ public class PlayField {
 		return map;
 	}
 
-	public int getNumberOfAliveShips() {
+	public int getNumberOfLivingShips() {
 		return livingShips.size();
 	}
 }

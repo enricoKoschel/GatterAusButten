@@ -329,9 +329,9 @@ public class Game extends PApplet {
 					}
 				}
 
-				if(ownField.isValidShipPosition(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())){
+				if (ownField.isValidShipPosition(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
 					fill(128, 128, 128);
-				}else{
+				} else {
 					fill(255, 0, 0);
 				}
 
@@ -405,7 +405,7 @@ public class Game extends PApplet {
 		if (totalNumberOfShipsRemaining <= 0) currentState = GameState.OwnTurn;
 	}
 
-	private void selectShip(){
+	private void selectShip() {
 		selectedShip.setOrientation(Ship.Orientation.Horizontal);
 
 		float topY = shipListYPosition;
@@ -440,7 +440,7 @@ public class Game extends PApplet {
 		}
 	}
 
-	private void addShip(){
+	private void addShip() {
 		int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
 		int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
 
@@ -471,7 +471,7 @@ public class Game extends PApplet {
 		}
 
 		//Switch turns
-		if(switchTurns){
+		if (switchTurns) {
 			currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
 		}
 
