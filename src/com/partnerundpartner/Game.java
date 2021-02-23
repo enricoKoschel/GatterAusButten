@@ -301,28 +301,45 @@ public class Game extends PApplet {
 		fill(128, 128, 128);
 
 		if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
+			float finalCellX = 0;
+			float finalCellY = 0;
+			float finalTextX = 0;
+			float finalTextY = 0;
+			char finalChar = 0;
+			int finalNum = 0;
+
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
 					if (x + cellSize * i < ownPlayFieldXPosition + playFieldSize) {
-						fill(128, 128, 128);
-						rect(x + cellSize * i, y, cellSize, cellSize);
-
-						//Cell number on the bottom left of each cell
-						fill(0, 0, 128);
-						text((char)(65 + cellY) + "" + (cellX + i + 1), x + cellSize * i + width * 0.001f,
-								y + cellSize - width * 0.001f);
+						finalCellX = x + cellSize * i;
+						finalCellY = y;
+						finalTextX = x + cellSize * i + width * 0.001f;
+						finalTextY = y + cellSize - width * 0.001f;
+						finalChar = (char)(65 + cellY);
+						finalNum = cellX + i + 1;
 					}
 				} else {
 					if (y + cellSize * i < ownPlayFieldYPosition + playFieldSize) {
-						fill(128, 128, 128);
-						rect(x, y + cellSize * i, cellSize, cellSize);
-
-						//Cell number on the bottom left of each cell
-						fill(0, 0, 128);
-						text((char)(65 + cellY + i) + "" + (cellX + 1), x + width * 0.001f,
-								y + cellSize * (i + 1) - width * 0.001f);
+						finalCellX = x;
+						finalCellY = y + cellSize * i;
+						finalTextX = x + width * 0.001f;
+						finalTextY = y + cellSize * (i + 1) - width * 0.001f;
+						finalChar = (char)(65 + cellY + i);
+						finalNum = cellX + 1;
 					}
 				}
+
+				if(ownField.isValidShipPosition(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())){
+					fill(128, 128, 128);
+				}else{
+					fill(255, 0, 0);
+				}
+
+				rect(finalCellX, finalCellY, cellSize, cellSize);
+
+				//Cell number on the bottom left of each cell
+				fill(0, 0, 128);
+				text(finalChar + "" + finalNum, finalTextX, finalTextY);
 			}
 		}
 	}
@@ -430,10 +447,6 @@ public class Game extends PApplet {
 		if (ownField.addShip(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
 			//If ship was added successfully, decrease remaining variable of that length
 			updateRemainingShips();
-
-			System.out.println("ship added");
-		} else {
-			System.out.println("error");
 		}
 	}
 

@@ -3,10 +3,13 @@ package com.partnerundpartner;
 import java.util.ArrayList;
 
 public class PlayField {
+	private final int size;
 	private final Ship.State[][] map;
 	private final ArrayList<Ship> livingShips;
 
 	public PlayField(int size) {
+		this.size = size;
+
 		livingShips = new ArrayList<>();
 		map = new Ship.State[size][size];
 
@@ -61,6 +64,8 @@ public class PlayField {
 	}
 
 	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
+		if(!isValidShipPosition(x, y, length, orientation)) return false;
+
 		livingShips.add(new Ship(x, y, length, orientation));
 
 		for (int i = 0; i < length; i++) {
@@ -68,6 +73,22 @@ public class PlayField {
 				map[x + i][y] = Ship.State.Living_Ship;
 			} else {
 				map[x][y + i] = Ship.State.Living_Ship;
+			}
+		}
+
+		return true;
+	}
+
+	public boolean isValidShipPosition(int x, int y, int length, Ship.Orientation orientation){
+		for (int i = 0; i < length; i++) {
+			if(orientation == Ship.Orientation.Horizontal){
+				if(!(x + i < size && y < size && map[x + i][y] == Ship.State.Water)){
+					return false;
+				}
+			}else{
+				if(!(x < size && y + i < size && map[x][y + i] == Ship.State.Water)){
+					return false;
+				}
 			}
 		}
 
