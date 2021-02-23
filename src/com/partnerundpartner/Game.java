@@ -49,7 +49,7 @@ public class Game extends PApplet {
 
 		startingWidth = width;
 
-		//Set height according to 16/9 aspect ratio
+		//Set height according to 16:9 aspect ratio
 		startingHeight = startingWidth * 9 / 16;
 
 		ownField = new PlayField(playFieldCells);
@@ -130,7 +130,7 @@ public class Game extends PApplet {
 	}
 
 	private void updateLayout() {
-		//If funky resize is enabled and the window is not currently in 16/9 aspect ratio,
+		//If funky resize is enabled and the window is not currently in 16:9 aspect ratio,
 		//force a resize prioritizing the width and forcing the height.
 		//Resizing sometimes results in weird artifacts and window sizes, this is Processing fault.
 		if(funkyResize && height != width * 9 / 16){
