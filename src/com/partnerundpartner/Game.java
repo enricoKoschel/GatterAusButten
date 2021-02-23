@@ -17,7 +17,6 @@ public class Game extends PApplet {
 
 	private float bigTextSize;
 	private float middleTextSize;
-	private float smallTextSize;
 
 	private float edgeMargin;
 
@@ -70,7 +69,7 @@ public class Game extends PApplet {
 
 	private GameState currentState = GameState.PickShips;
 
-	private final HashMap<Ship.Type, Integer> remainingShipsToSelect = new HashMap<>();
+	private final HashMap<Integer, Integer> remainingShipsToSelect = new HashMap<>();
 
 	//Dummy ship for placing new ships
 	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
@@ -81,9 +80,9 @@ public class Game extends PApplet {
 		size(startingWidth, startingHeight);
 
 		//Placeable ship amounts
-		remainingShipsToSelect.put(Ship.Type.OneLong, 3);
-		remainingShipsToSelect.put(Ship.Type.TwoLong, 2);
-		remainingShipsToSelect.put(Ship.Type.ThreeLong, 2);
+		remainingShipsToSelect.put(1, 3);
+		remainingShipsToSelect.put(2, 2);
+		remainingShipsToSelect.put(3, 2);
 
 		//TODO remove
 		infoText.add("getroffen");
@@ -133,8 +132,8 @@ public class Game extends PApplet {
 		//If funky resize is enabled and the window is not currently in 16:9 aspect ratio,
 		//force a resize prioritizing the width and forcing the height.
 		//Resizing sometimes results in weird artifacts and window sizes, this is Processing fault.
-		if(funkyResize && height != width * 9 / 16){
-			surface.setSize(width , width * 9 / 16);
+		if (funkyResize && height != width * 9 / 16) {
+			surface.setSize(width, width * 9 / 16);
 		}
 
 		cellSize = width * 0.39f / playFieldCells;
@@ -160,7 +159,6 @@ public class Game extends PApplet {
 
 		bigTextSize = width / 40f;
 		middleTextSize = bigTextSize * 0.7f;
-		smallTextSize = middleTextSize * 0.5f;
 	}
 
 	private void drawPlayField(String title, float x, float y, Ship.State[][] map) {
@@ -265,7 +263,7 @@ public class Game extends PApplet {
 		rect(x + smallCellSize * 2, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.ThreeLong), x + smallCellSize * 3, y + smallCellSize);
+		text("x" + remainingShipsToSelect.get(3), x + smallCellSize * 3, y + smallCellSize);
 
 		//2 long
 		if (selectedShip.getLength() == 2) {
@@ -277,7 +275,7 @@ public class Game extends PApplet {
 		rect(xPos2Long + smallCellSize, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.TwoLong), xPos2Long + smallCellSize * 2, y + smallCellSize);
+		text("x" + remainingShipsToSelect.get(2), xPos2Long + smallCellSize * 2, y + smallCellSize);
 
 		//1 long
 		if (selectedShip.getLength() == 1) {
@@ -288,7 +286,7 @@ public class Game extends PApplet {
 		rect(xPos1Long, y, smallCellSize, smallCellSize);
 
 		fill(255);
-		text("x" + remainingShipsToSelect.get(Ship.Type.OneLong), xPos1Long + smallCellSize, y + smallCellSize);
+		text("x" + remainingShipsToSelect.get(1), xPos1Long + smallCellSize, y + smallCellSize);
 
 		popStyle();
 	}
@@ -343,105 +341,125 @@ public class Game extends PApplet {
 			return;
 		}
 
-		if (currentState == GameState.PickShips) {
-			if (mouseButton == RIGHT) {
-				//Deselect selected ship
-				selectedShip.setLength(0);
-			} else if (mouseButton == LEFT) {
-				if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
-					//Add ship to map
-					int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
-					int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
-
-					if (ownField.addShip(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
-						switch (selectedShip.getLength()) {
-							case 1:
-								remainingShipsToSelect.put(Ship.Type.OneLong, remainingShipsToSelect.get(Ship.Type.OneLong) - 1);
-
-								if (remainingShipsToSelect.get(Ship.Type.OneLong) <= 0) {
-									selectedShip.setLength(0);
-								}
-								break;
-							case 2:
-								remainingShipsToSelect.put(Ship.Type.TwoLong, remainingShipsToSelect.get(Ship.Type.TwoLong) - 1);
-
-								if (remainingShipsToSelect.get(Ship.Type.TwoLong) <= 0) {
-									selectedShip.setLength(0);
-								}
-								break;
-							case 3:
-								remainingShipsToSelect.put(Ship.Type.ThreeLong, remainingShipsToSelect.get(Ship.Type.ThreeLong) - 1);
-
-								if (remainingShipsToSelect.get(Ship.Type.ThreeLong) <= 0) {
-									selectedShip.setLength(0);
-								}
-								break;
-						}
-
-						int totalNumberOfShipsRemaining = 0;
-						for (int remaining : remainingShipsToSelect.values()) {
-							totalNumberOfShipsRemaining += remaining;
-						}
-
-						if (totalNumberOfShipsRemaining <= 0) {
-							currentState = GameState.OwnTurn;
-						}
-
-						System.out.println("ship added");
-					} else {
-						System.out.println("error");
-					}
-				} else {
-					//Select ship from list
-					selectedShip.setOrientation(Ship.Orientation.Horizontal);
-
-					float topY = shipListYPosition;
-					float bottomY = shipListYPosition + smallCellSize;
-
-					float leftX3Long = shipListXPosition;
-					float rightX3Long = leftX3Long + smallCellSize * 3;
-
-					float leftX2Long = rightX3Long + smallCellSize;
-					float rightX2Long = leftX2Long + smallCellSize * 2;
-
-					float leftX1Long = rightX2Long + smallCellSize;
-					float rightX1Long = leftX1Long + smallCellSize;
-
-					fill(255, 0, 0);
-
-					if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
-						//Place 3 long ship
-						if (remainingShipsToSelect.get(Ship.Type.ThreeLong) > 0) {
-							selectedShip.setLength(selectedShip.getLength() == 3 ? 0 : 3);
-						}
-					} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
-						//Place 2 long ship
-						if (remainingShipsToSelect.get(Ship.Type.TwoLong) > 0) {
-							selectedShip.setLength(selectedShip.getLength() == 2 ? 0 : 2);
-						}
-					} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
-						//Place 1 long ship
-						if (remainingShipsToSelect.get(Ship.Type.OneLong) > 0) {
-							selectedShip.setLength(selectedShip.getLength() == 1 ? 0 : 1);
-						}
-					}
+		switch (currentState) {
+			case OwnTurn:
+				//Shoot at enemy play field if left mouse button was pressed inside it
+				if (mouseButton == LEFT && isInsideEnemyPlayField(mouseX, mouseY)) {
+					shootAtPlayField();
 				}
+				break;
+			case EnemyTurn:
+				//Shoot at own play field if left mouse button was pressed inside it
+				if (mouseButton == LEFT && isInsideOwnPlayField(mouseX, mouseY)) {
+					shootAtPlayField();
+				}
+				break;
+			case PickShips:
+				switch (mouseButton) {
+					case LEFT:
+						if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
+							//Add ship to map
+							addShip();
+						} else {
+							//Select ship from list
+							selectShip();
+						}
+						break;
+					case RIGHT:
+						//Deselect selected ship
+						selectedShip.setLength(0);
+						break;
+				}
+		}
+	}
+
+	private void updateRemainingShips() {
+		//Subtract one from value
+		remainingShipsToSelect.merge(selectedShip.getLength(), -1, Integer::sum);
+
+		//Deselect ship if there are no remaining ships of that length
+		if (remainingShipsToSelect.get(selectedShip.getLength()) <= 0) {
+			selectedShip.setLength(0);
+		}
+
+		int totalNumberOfShipsRemaining = 0;
+		for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
+
+		if (totalNumberOfShipsRemaining <= 0) currentState = GameState.OwnTurn;
+	}
+
+	private void selectShip(){
+		selectedShip.setOrientation(Ship.Orientation.Horizontal);
+
+		float topY = shipListYPosition;
+		float bottomY = shipListYPosition + smallCellSize;
+
+		float leftX3Long = shipListXPosition;
+		float rightX3Long = leftX3Long + smallCellSize * 3;
+
+		float leftX2Long = rightX3Long + smallCellSize;
+		float rightX2Long = leftX2Long + smallCellSize * 2;
+
+		float leftX1Long = rightX2Long + smallCellSize;
+		float rightX1Long = leftX1Long + smallCellSize;
+
+		fill(255, 0, 0);
+
+		if (isInsideRect(mouseX, mouseY, leftX3Long, topY, rightX3Long, bottomY)) {
+			//Place 3 long ship
+			if (remainingShipsToSelect.get(3) > 0) {
+				selectedShip.setLength(selectedShip.getLength() == 3 ? 0 : 3);
 			}
-		} else {
-			if (isInsideOwnPlayField(mouseX, mouseY)) {
-				//Own field
-				int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
-				int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
-
-				ownField.getShotAt(cellX, cellY);
-			} else if (isInsideEnemyPlayField(mouseX, mouseY)) {
-				//Enemy field
-				int cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
-				int cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
-
-				enemyField.getShotAt(cellX, cellY);
+		} else if (isInsideRect(mouseX, mouseY, leftX2Long, topY, rightX2Long, bottomY)) {
+			//Place 2 long ship
+			if (remainingShipsToSelect.get(2) > 0) {
+				selectedShip.setLength(selectedShip.getLength() == 2 ? 0 : 2);
+			}
+		} else if (isInsideRect(mouseX, mouseY, leftX1Long, topY, rightX1Long, bottomY)) {
+			//Place 1 long ship
+			if (remainingShipsToSelect.get(1) > 0) {
+				selectedShip.setLength(selectedShip.getLength() == 1 ? 0 : 1);
 			}
 		}
+	}
+
+	private void addShip(){
+		int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
+		int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
+
+		if (ownField.addShip(cellX, cellY, selectedShip.getLength(), selectedShip.getOrientation())) {
+			//If ship was added successfully, decrease remaining variable of that length
+			updateRemainingShips();
+
+			System.out.println("ship added");
+		} else {
+			System.out.println("error");
+		}
+	}
+
+	private void shootAtPlayField() {
+		int cellX;
+		int cellY;
+
+		//Determine play field to be shot at
+		//Own turn -> shoot at enemy
+		//Enemy turn -> shoot at player
+		if (currentState == GameState.OwnTurn) {
+			cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
+			cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
+
+			//TODO differentiate between cell type of shot location
+			enemyField.getShotAt(cellX, cellY);
+		} else {
+			cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
+			cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
+
+			//TODO differentiate between cell type of shot location
+			ownField.getShotAt(cellX, cellY);
+		}
+
+		//Switch turns
+		currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
 	}
 
 	private int getSelectedCell(float pos, float cellSize) {

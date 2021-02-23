@@ -1,12 +1,6 @@
 package com.partnerundpartner;
 
 public class Ship {
-	public enum Type {
-		ThreeLong,
-		TwoLong,
-		OneLong
-	}
-
 	public enum State {
 		Living_Ship,
 		Sunk_Ship,
