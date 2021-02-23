@@ -350,6 +350,8 @@ public class Game extends PApplet {
 
 				//Cell number on the bottom left of each cell
 				fill(0, 0, 128);
+				textSize(middleTextSize);
+
 				text(finalChar + "" + finalNum, finalTextX, finalTextY);
 			}
 		}
