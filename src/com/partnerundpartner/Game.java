@@ -365,9 +365,12 @@ public class Game extends PApplet {
 
 	@Override
 	public void mouseReleased() {
-		//TODO remove
+		//TODO remove, for debug/pre-release only
 		if (mouseButton == CENTER) {
-			currentState = GameState.OwnTurn;
+			remainingShipsToSelect.put(1, 0);
+			remainingShipsToSelect.put(2, 0);
+			remainingShipsToSelect.put(3, 0);
+			updateRemainingShips();
 			return;
 		}
 
@@ -415,7 +418,8 @@ public class Game extends PApplet {
 		int totalNumberOfShipsRemaining = 0;
 		for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
 
-		if (totalNumberOfShipsRemaining <= 0) currentState = GameState.OwnTurn;
+		//If there are no more ships to select, randomly choose who starts playing first
+		if (totalNumberOfShipsRemaining <= 0) currentState = random(1) > 0.5 ? GameState.OwnTurn : GameState.EnemyTurn;
 	}
 
 	private void selectShip() {
