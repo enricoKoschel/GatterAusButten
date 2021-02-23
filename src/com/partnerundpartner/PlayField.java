@@ -95,21 +95,20 @@ public class PlayField {
 		return true;
 	}
 
-	public Ship.State getShotAt(int x, int y) {
+	public boolean getShotAt(int x, int y) {
 		switch (stateAt(x, y)) {
 			case Living_Ship:
 				damageShipAt(x, y);
-				return Ship.State.Living_Ship;
-			case Hit_Ship:
-				return Ship.State.Hit_Ship;
+				return true;
 			case Water:
 				changeStateAt(x, y, Ship.State.Miss);
-				return Ship.State.Water;
+				return true;
 			case Miss:
-				return Ship.State.Miss;
+			case Hit_Ship:
+				return false;
 		}
 
-		return Ship.State.Water;
+		return false;
 	}
 
 	public Ship.State[][] getMap() {

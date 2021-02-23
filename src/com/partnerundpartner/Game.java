@@ -453,6 +453,7 @@ public class Game extends PApplet {
 	private void shootAtPlayField() {
 		int cellX;
 		int cellY;
+		boolean switchTurns;
 
 		//Determine play field to be shot at
 		//Own turn -> shoot at enemy
@@ -461,18 +462,19 @@ public class Game extends PApplet {
 			cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
 			cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
 
-			//TODO differentiate between cell type of shot location
-			enemyField.getShotAt(cellX, cellY);
+			switchTurns = enemyField.getShotAt(cellX, cellY);
 		} else {
 			cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
 			cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
 
-			//TODO differentiate between cell type of shot location
-			ownField.getShotAt(cellX, cellY);
+			switchTurns = ownField.getShotAt(cellX, cellY);
 		}
 
 		//Switch turns
-		currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
+		if(switchTurns){
+			currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
+		}
+
 	}
 
 	private int getSelectedCell(float pos, float cellSize) {
