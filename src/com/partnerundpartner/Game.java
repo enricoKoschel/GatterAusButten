@@ -365,6 +365,22 @@ public class Game extends PApplet {
 
 	@Override
 	public void mouseWheel() {
+		rotateSelectedShip();
+	}
+
+	@Override
+	public void keyPressed() {
+		switch (key) {
+			case 'r':
+				if (currentState == GameState.PickShips) rotateSelectedShip();
+				break;
+			case 's':
+				if (currentState == GameState.PickShips) startMainGame();
+				break;
+		}
+	}
+
+	private void rotateSelectedShip() {
 		selectedShip.setOrientation(selectedShip.getOrientation() == Ship.Orientation.Horizontal ?
 				Ship.Orientation.Vertical : Ship.Orientation.Horizontal);
 	}
@@ -373,10 +389,7 @@ public class Game extends PApplet {
 	public void mouseReleased() {
 		//TODO remove, for debug/pre-release only
 		if (mouseButton == CENTER) {
-			remainingShipsToSelect.put(1, 0);
-			remainingShipsToSelect.put(2, 0);
-			remainingShipsToSelect.put(3, 0);
-			updateRemainingShips();
+			startMainGame();
 			return;
 		}
 
@@ -426,8 +439,18 @@ public class Game extends PApplet {
 		int totalNumberOfShipsRemaining = 0;
 		for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
 
-		//If there are no more ships to select, randomly choose who starts playing first
-		if (totalNumberOfShipsRemaining <= 0) currentState = random(1) > 0.5 ? GameState.OwnTurn : GameState.EnemyTurn;
+		//If there are no more ships to select, place the enemy ships randomly and decide who starts playing first
+		if (totalNumberOfShipsRemaining <= 0) startMainGame();
+	}
+
+	private void startMainGame() {
+		ownField.setRemainingShipsToSelect(remainingShipsToSelect);
+
+		//Ships only get placed randomly if they were not previously placed by hand
+		ownField.placeShipsRandomly();
+		enemyField.placeShipsRandomly();
+
+		currentState = random(1) > 0.5 ? GameState.OwnTurn : GameState.EnemyTurn;
 	}
 
 	private void selectShip() {
