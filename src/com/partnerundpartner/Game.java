@@ -36,6 +36,9 @@ public class Game extends PApplet {
 	private float middleSectionWidth;
 	private float middleSectionHeight;
 
+	private float rulesTextXPosition;
+	private float rulesTextYPosition;
+
 	private float shipListXPosition;
 	private float shipListYPosition;
 
@@ -110,6 +113,8 @@ public class Game extends PApplet {
 
 				drawShipList(shipListXPosition, shipListYPosition);
 				drawShipPlaceholder();
+
+				drawRulesText(rulesTextXPosition, rulesTextYPosition);
 				break;
 
 			case EnemyTurn:
@@ -156,6 +161,9 @@ public class Game extends PApplet {
 
 		bigTextSize = width / 40f;
 		middleTextSize = bigTextSize * 0.7f;
+
+		rulesTextXPosition = shipListXPosition;
+		rulesTextYPosition = width * 0.2f;
 	}
 
 	private void drawPlayField(String title, float x, float y, Ship.State[][] map, boolean isEnemy) {
@@ -363,6 +371,19 @@ public class Game extends PApplet {
 		popStyle();
 	}
 
+	private void drawRulesText(float x, float y) {
+		pushStyle();
+
+		textSize(bigTextSize);
+		text("Steuerung:\n" +
+				"    S - Platzieren überspringen\n" +
+				"    Mausrad/R - Schiff drehen\n" +
+				"    Linksklick - Platzieren/Schießen\n" +
+				"    Rechtsklick - Platzieren abbrechen", x, y);
+
+		popStyle();
+	}
+
 	@Override
 	public void mouseWheel() {
 		rotateSelectedShip();
@@ -378,11 +399,6 @@ public class Game extends PApplet {
 				if (currentState == GameState.PickShips) startMainGame();
 				break;
 		}
-	}
-
-	private void rotateSelectedShip() {
-		selectedShip.setOrientation(selectedShip.getOrientation() == Ship.Orientation.Horizontal ?
-				Ship.Orientation.Vertical : Ship.Orientation.Horizontal);
 	}
 
 	@Override
@@ -425,6 +441,11 @@ public class Game extends PApplet {
 		}
 	}
 
+	private void rotateSelectedShip() {
+		selectedShip.setOrientation(selectedShip.getOrientation() == Ship.Orientation.Horizontal ?
+				Ship.Orientation.Vertical : Ship.Orientation.Horizontal);
+	}
+
 	private void updateRemainingShips() {
 		//Subtract one from value
 		remainingShipsToSelect.merge(selectedShip.getLength(), -1, Integer::sum);
@@ -454,6 +475,8 @@ public class Game extends PApplet {
 	}
 
 	private void selectShip() {
+		pushStyle();
+
 		selectedShip.setOrientation(Ship.Orientation.Horizontal);
 
 		float topY = shipListYPosition;
@@ -486,6 +509,8 @@ public class Game extends PApplet {
 				selectedShip.setLength(selectedShip.getLength() == 1 ? 0 : 1);
 			}
 		}
+
+		popStyle();
 	}
 
 	private void addShip() {
@@ -524,10 +549,12 @@ public class Game extends PApplet {
 		}
 
 		//Switch turns
-		if (switchTurns) {
-			currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
-		}
+		if (switchTurns) switchTurns();
 
+	}
+
+	private void switchTurns(){
+		currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
 	}
 
 	private int getSelectedCell(float pos, float cellSize) {
