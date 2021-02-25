@@ -15,17 +15,23 @@ public class PlayField {
 
 		remainingShipsToSelect = new HashMap<>();
 
+		livingShips = new ArrayList<>();
+		map = new Ship.State[size][size];
+
+		reset();
+	}
+
+	public void reset(){
 		//Placeable ship amounts
 		remainingShipsToSelect.put(1, 3);
 		remainingShipsToSelect.put(2, 2);
 		remainingShipsToSelect.put(3, 2);
 
-		livingShips = new ArrayList<>();
-		map = new Ship.State[size][size];
-
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) map[x][y] = Ship.State.Water;
 		}
+
+		livingShips.clear();
 	}
 
 	public Ship.State stateAt(int x, int y) {

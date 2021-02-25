@@ -77,7 +77,7 @@ public class Game extends PApplet {
 
 	private GameState currentState = GameState.PickShips;
 
-	private final HashMap<Integer, Integer> remainingShipsToSelect;
+	private HashMap<Integer, Integer> remainingShipsToSelect;
 
 	//Dummy ship for placing new ships
 	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
@@ -449,7 +449,15 @@ public class Game extends PApplet {
 	public void keyPressed() {
 		switch (key) {
 			case 'r':
-				if (currentState == GameState.PickShips) rotateSelectedShip();
+				switch (currentState){
+					case PickShips:
+						rotateSelectedShip();
+						break;
+					case Won:
+					case Lost:
+						restartGame();
+						break;
+				}
 				break;
 			case 's':
 				if (currentState == GameState.PickShips) startMainGame();
@@ -504,6 +512,18 @@ public class Game extends PApplet {
 						break;
 				}
 		}
+	}
+
+	private void restartGame(){
+		ownField.reset();
+		enemyField.reset();
+
+		remainingShipsToSelect = ownField.getRemainingShipsToSelect();
+
+		selectedShip.setLength(0);
+		selectedShip.setOrientation(Ship.Orientation.Horizontal);
+
+		currentState = GameState.PickShips;
 	}
 
 	private void rotateSelectedShip() {
