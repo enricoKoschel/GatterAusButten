@@ -54,6 +54,8 @@ public class Game extends PApplet {
 		ownField = new PlayField(numOfPlayFieldCells);
 		enemyField = new PlayField(numOfPlayFieldCells);
 
+		remainingShipsToSelect = ownField.getRemainingShipsToSelect();
+
 		//Open window
 		String[] processingArgs = {""};
 		PApplet.runSketch(processingArgs, this);
@@ -69,7 +71,7 @@ public class Game extends PApplet {
 
 	private GameState currentState = GameState.PickShips;
 
-	private final HashMap<Integer, Integer> remainingShipsToSelect = new HashMap<>();
+	private final HashMap<Integer, Integer> remainingShipsToSelect;
 
 	//Dummy ship for placing new ships
 	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
@@ -78,11 +80,6 @@ public class Game extends PApplet {
 	public void settings() {
 		//Called once at program start
 		size(startingWidth, startingHeight);
-
-		//Placeable ship amounts
-		remainingShipsToSelect.put(1, 3);
-		remainingShipsToSelect.put(2, 2);
-		remainingShipsToSelect.put(3, 2);
 
 		//TODO remove
 		infoText.add("getroffen");
@@ -423,6 +420,8 @@ public class Game extends PApplet {
 		if (remainingShipsToSelect.get(selectedShip.getLength()) <= 0) {
 			selectedShip.setLength(0);
 		}
+
+		ownField.setRemainingShipsToSelect(remainingShipsToSelect);
 
 		int totalNumberOfShipsRemaining = 0;
 		for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;

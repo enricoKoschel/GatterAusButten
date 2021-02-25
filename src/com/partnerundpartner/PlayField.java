@@ -1,14 +1,24 @@
 package com.partnerundpartner;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
 
 public class PlayField {
 	private final int size;
 	private final Ship.State[][] map;
 	private final ArrayList<Ship> livingShips;
+	private HashMap<Integer, Integer> remainingShipsToSelect;
 
 	public PlayField(int size) {
 		this.size = size;
+
+		remainingShipsToSelect = new HashMap<>();
+
+		//Placeable ship amounts
+		remainingShipsToSelect.put(1, 3);
+		remainingShipsToSelect.put(2, 2);
+		remainingShipsToSelect.put(3, 2);
 
 		livingShips = new ArrayList<>();
 		map = new Ship.State[size][size];
@@ -126,6 +136,36 @@ public class PlayField {
 		}
 
 		return false;
+	}
+
+	public void placeShipsRandomly() {
+		int totalNumberOfShipsRemaining;
+
+		do {
+			totalNumberOfShipsRemaining = 0;
+			for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
+
+			int cellX = (int)(Math.random() * size);
+			int cellY = (int)(Math.random() * size);
+
+			AtomicInteger maxRemainingShipLength = new AtomicInteger();
+			remainingShipsToSelect.forEach((key, value) -> {
+				if (value > 0 && key > maxRemainingShipLength.get()) maxRemainingShipLength.set(key);
+			});
+
+			Ship.Orientation orientation = Math.random() > 0.5 ? Ship.Orientation.Horizontal : Ship.Orientation.Vertical;
+
+			if (addShip(cellX, cellY, maxRemainingShipLength.get(), orientation))
+				remainingShipsToSelect.merge(maxRemainingShipLength.get(), -1, Integer::sum);
+		} while (totalNumberOfShipsRemaining > 0);
+	}
+
+	public HashMap<Integer, Integer> getRemainingShipsToSelect() {
+		return remainingShipsToSelect;
+	}
+
+	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
+		this.remainingShipsToSelect = remainingShipsToSelect;
 	}
 
 	public Ship.State[][] getMap() {
