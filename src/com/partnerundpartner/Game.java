@@ -432,10 +432,13 @@ public class Game extends PApplet {
 
 		textSize(bigTextSize);
 		text("Steuerung:\n" +
-				"    S - Platzieren überspringen\n" +
-				"    Mausrad/R - Schiff drehen\n" +
-				"    Linksklick - Platzieren/Schießen\n" +
-				"    Rechtsklick - Platzieren abbrechen", x, y);
+				"    'S' - Platzieren überspringen\n" +
+				"    Mausrad / 'R' - Schiff drehen\n" +
+				"    Linksklick - Platzieren / Schießen\n" +
+				"    Rechtsklick - Platzieren abbrechen\n\n" +
+				"Regeln:\n" +
+				"    Schiffe dürfen sich nicht berühren\n" +
+				"    Nach jedem Schuss wechselt der Spieler", x, y);
 
 		popStyle();
 	}
