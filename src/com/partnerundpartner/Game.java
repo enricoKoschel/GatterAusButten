@@ -9,12 +9,15 @@ public class Game extends PApplet {
 	private enum GameState {
 		OwnTurn,
 		EnemyTurn,
-		PickShips
+		PickShips,
+		Won,
+		Lost
 	}
 
 	private final int startingWidth;
 	private final int startingHeight;
 
+	private float veryBigTextSize;
 	private float bigTextSize;
 	private float middleTextSize;
 
@@ -109,23 +112,17 @@ public class Game extends PApplet {
 
 		switch (currentState) {
 			case PickShips:
-				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
-
-				drawShipList(shipListXPosition, shipListYPosition);
-				drawShipPlaceholder();
-
-				drawRulesText(rulesTextXPosition, rulesTextYPosition);
+				drawPickShipsScreen();
 				break;
-
 			case EnemyTurn:
 			case OwnTurn:
-				drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
-
-				drawMiddleSection("Verlauf", middleSectionXPosition, middleSectionYPosition);
-
-				drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap(), true);
-
-				drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
+				drawMainGameScreen();
+				break;
+			case Won:
+				drawWinScreen();
+				break;
+			case Lost:
+				drawLoseScreen();
 				break;
 		}
 	}
@@ -159,11 +156,70 @@ public class Game extends PApplet {
 		shipListXPosition = width * 0.46f;
 		shipListYPosition = ownPlayFieldYPosition;
 
+		veryBigTextSize = width / 20f;
 		bigTextSize = width / 40f;
 		middleTextSize = bigTextSize * 0.7f;
 
 		rulesTextXPosition = shipListXPosition;
 		rulesTextYPosition = width * 0.2f;
+	}
+
+	private void drawWinScreen() {
+		pushStyle();
+
+		fill(0, 255, 0);
+		drawMiddleText("Gewonnen!");
+
+		popStyle();
+	}
+
+	private void drawLoseScreen() {
+		pushStyle();
+
+		fill(255, 0, 0);
+		drawMiddleText("Verloren!");
+
+		popStyle();
+	}
+
+	private void drawMiddleText(String text) {
+		pushStyle();
+
+		textSize(veryBigTextSize);
+		text(text, width / 2f - textWidth(text) / 2, height / 2f);
+
+		textSize(bigTextSize);
+		String retryText = "Drücke 'R' um erneut zu spielen";
+		text(retryText, width / 2f - textWidth(retryText) / 2, height / 2f + bigTextSize);
+
+		popStyle();
+	}
+
+	private void drawPickShipsScreen() {
+		pushStyle();
+
+		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
+
+		drawShipList(shipListXPosition, shipListYPosition);
+		drawShipPlaceholder();
+
+		drawRulesText(rulesTextXPosition, rulesTextYPosition);
+
+		popStyle();
+	}
+
+	private void drawMainGameScreen() {
+		pushStyle();
+
+		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
+
+		drawMiddleSection("Verlauf", middleSectionXPosition, middleSectionYPosition);
+
+		drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap(), true);
+
+		drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
+
+		popStyle();
 	}
 
 	private void drawPlayField(String title, float x, float y, Ship.State[][] map, boolean isEnemy) {
@@ -398,6 +454,15 @@ public class Game extends PApplet {
 			case 's':
 				if (currentState == GameState.PickShips) startMainGame();
 				break;
+
+
+			//TODO remove, for debug only
+			case 'w':
+				currentState = GameState.Won;
+				break;
+			case 'l':
+				currentState = GameState.Lost;
+				break;
 		}
 	}
 
@@ -551,9 +616,15 @@ public class Game extends PApplet {
 		//Switch turns
 		if (switchTurns) switchTurns();
 
+		checkWinCondition();
 	}
 
-	private void switchTurns(){
+	private void checkWinCondition() {
+		if (ownField.getNumberOfLivingShips() <= 0) currentState = GameState.Lost;
+		else if (enemyField.getNumberOfLivingShips() <= 0) currentState = GameState.Won;
+	}
+
+	private void switchTurns() {
 		currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
 	}
 
