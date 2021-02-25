@@ -115,6 +115,9 @@ public class Game extends PApplet {
 				drawPickShipsScreen();
 				break;
 			case EnemyTurn:
+				cpuShootAtPlayer();
+				drawMainGameScreen();
+				break;
 			case OwnTurn:
 				drawMainGameScreen();
 				break;
@@ -236,7 +239,9 @@ public class Game extends PApplet {
 			for (int cellX = 0; cellX < numOfPlayFieldCells; cellX++) {
 				switch (map[cellX][cellY]) {
 					case Living_Ship:
-						fill(0, 255, 0);
+						//If drawing enemy field, show living ships as water
+						if(isEnemy) fill(0, 0, 255);
+						else fill(0, 255, 0);
 						break;
 					case Sunk_Ship:
 						fill(0);
@@ -489,13 +494,13 @@ public class Game extends PApplet {
 			case OwnTurn:
 				//Shoot at enemy play field if left mouse button was pressed inside it
 				if (mouseButton == LEFT && isInsideEnemyPlayField(mouseX, mouseY)) {
-					shootAtPlayField();
+					shootAtEnemy();
 				}
 				break;
 			case EnemyTurn:
 				//Shoot at own play field if left mouse button was pressed inside it
 				if (mouseButton == LEFT && isInsideOwnPlayField(mouseX, mouseY)) {
-					shootAtPlayField();
+					shootAtEnemy();
 				}
 				break;
 			case PickShips:
@@ -616,30 +621,40 @@ public class Game extends PApplet {
 		}
 	}
 
-	private void shootAtPlayField() {
+	private void shootAtEnemy() {
+		if(currentState != GameState.OwnTurn) return;
+
 		int cellX;
 		int cellY;
 		boolean switchTurns;
 
-		//Determine play field to be shot at
-		//Own turn -> shoot at enemy
-		//Enemy turn -> shoot at player
-		if (currentState == GameState.OwnTurn) {
-			cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
-			cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
+		cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
+		cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
 
-			switchTurns = enemyField.getShotAt(cellX, cellY);
-		} else {
-			cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
-			cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
-
-			switchTurns = ownField.getShotAt(cellX, cellY);
-		}
+		switchTurns = enemyField.getShotAt(cellX, cellY);
 
 		//Switch turns
 		if (switchTurns) switchTurns();
 
 		checkWinCondition();
+	}
+
+	private boolean shootAtPlayer(int x, int y){
+		return ownField.getShotAt(x, y);
+	}
+
+	private void cpuShootAtPlayer(){
+		if(currentState != GameState.EnemyTurn) return;
+
+		int cellX;
+		int cellY;
+
+		do{
+			cellX = (int)(Math.random() * numOfPlayFieldCells);
+			cellY = (int)(Math.random() * numOfPlayFieldCells);
+		}while(!shootAtPlayer(cellX, cellY));
+
+		switchTurns();
 	}
 
 	private void checkWinCondition() {
