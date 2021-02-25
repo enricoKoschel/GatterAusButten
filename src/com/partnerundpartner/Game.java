@@ -635,12 +635,6 @@ public class Game extends PApplet {
 
 		//Switch turns
 		if (switchTurns) switchTurns();
-
-		checkWinCondition();
-	}
-
-	private boolean shootAtPlayer(int x, int y){
-		return ownField.getShotAt(x, y);
 	}
 
 	private void cpuShootAtPlayer(){
@@ -652,7 +646,7 @@ public class Game extends PApplet {
 		do{
 			cellX = (int)(Math.random() * numOfPlayFieldCells);
 			cellY = (int)(Math.random() * numOfPlayFieldCells);
-		}while(!shootAtPlayer(cellX, cellY));
+		}while(!ownField.getShotAt(cellX, cellY));
 
 		switchTurns();
 	}
@@ -664,6 +658,8 @@ public class Game extends PApplet {
 
 	private void switchTurns() {
 		currentState = currentState == GameState.OwnTurn ? GameState.EnemyTurn : GameState.OwnTurn;
+
+		checkWinCondition();
 	}
 
 	private int getSelectedCell(float pos, float cellSize) {
