@@ -484,12 +484,6 @@ public class Game extends PApplet {
 
 	@Override
 	public void mouseReleased() {
-		//TODO remove, for debug/pre-release only
-		if (mouseButton == CENTER) {
-			startMainGame();
-			return;
-		}
-
 		switch (currentState) {
 			case OwnTurn:
 				//Shoot at enemy play field if left mouse button was pressed inside it
