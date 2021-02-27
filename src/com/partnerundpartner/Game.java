@@ -264,7 +264,7 @@ public class Game extends PApplet {
 
 				//Cell number on the bottom left of each cell
 				fill(0, 0, 128);
-				text((char)(65 + cellY) + "" + (cellX + 1), finalX + width * 0.001f,
+				text(getCellText(cellX, cellY), finalX + width * 0.001f,
 						finalY + cellSize - width * 0.001f);
 			}
 		}
@@ -389,8 +389,8 @@ public class Game extends PApplet {
 			float finalCellY;
 			float finalTextX;
 			float finalTextY;
-			char finalChar;
-			int finalNum;
+			int finalCellRow;
+			int finalCellColumn;
 
 			for (int i = 0; i < selectedShip.getLength(); i++) {
 				if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) {
@@ -399,8 +399,8 @@ public class Game extends PApplet {
 						finalCellY = y;
 						finalTextX = x + cellSize * i + width * 0.001f;
 						finalTextY = y + cellSize - width * 0.001f;
-						finalChar = (char)(65 + cellY);
-						finalNum = cellX + i + 1;
+						finalCellRow = cellY;
+						finalCellColumn = cellX + i;
 					} else continue;
 				} else {
 					if (cellY + i < numOfPlayFieldCells && cellY + i >= 0) {
@@ -408,8 +408,8 @@ public class Game extends PApplet {
 						finalCellY = y + cellSize * i;
 						finalTextX = x + width * 0.001f;
 						finalTextY = y + cellSize * (i + 1) - width * 0.001f;
-						finalChar = (char)(65 + cellY + i);
-						finalNum = cellX + 1;
+						finalCellRow = cellY + i;
+						finalCellColumn = cellX;
 					} else continue;
 				}
 
@@ -425,7 +425,7 @@ public class Game extends PApplet {
 				fill(0, 0, 128);
 				textSize(middleTextSize);
 
-				text(finalChar + "" + finalNum, finalTextX, finalTextY);
+				text(getCellText(finalCellColumn, finalCellRow), finalTextX, finalTextY);
 			}
 		}
 
@@ -514,6 +514,10 @@ public class Game extends PApplet {
 						break;
 				}
 		}
+	}
+
+	public String getCellText(int x, int y){
+		return (char)('A' + y) + "" + (x + 1);
 	}
 
 	private void restartGame(){
