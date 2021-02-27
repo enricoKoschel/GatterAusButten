@@ -1,8 +1,6 @@
 package com.partnerundpartner;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class PreGameGUI extends JFrame {
 	private JPanel mainPanel;
@@ -27,10 +25,8 @@ public class PreGameGUI extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		pack();
-	}
 
-	private void createUIComponents() {
-		btnStartGame = new JButton();
+		//Component listeners
 		btnStartGame.addActionListener(e -> {
 			//Signal to main() that the game has started
 			synchronized (lock) {

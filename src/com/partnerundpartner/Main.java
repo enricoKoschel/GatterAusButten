@@ -6,7 +6,7 @@ public class Main {
 		gui.setVisible(true);
 
 		synchronized (gui.lock) {
-			while (!gui.gameStarted) gui.lock.wait(1000);
+			while (!gui.gameStarted) gui.lock.wait();
 		}
 
 		new Game(1920, 7, true);
