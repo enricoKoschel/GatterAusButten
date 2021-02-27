@@ -21,7 +21,7 @@ public class PlayField {
 		reset();
 	}
 
-	public void reset(){
+	public void reset() {
 		//Placeable ship amounts
 		remainingShipsToSelect.put(1, 3);
 		remainingShipsToSelect.put(2, 2);

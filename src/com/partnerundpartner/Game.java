@@ -240,7 +240,7 @@ public class Game extends PApplet {
 				switch (map[cellX][cellY]) {
 					case Living_Ship:
 						//If drawing enemy field, show living ships as water
-						if(isEnemy) fill(0, 0, 255);
+						if (isEnemy) fill(0, 0, 255);
 						else fill(0, 255, 0);
 						break;
 					case Sunk_Ship:
@@ -457,7 +457,7 @@ public class Game extends PApplet {
 	public void keyPressed() {
 		switch (key) {
 			case 'r':
-				switch (currentState){
+				switch (currentState) {
 					case PickShips:
 						rotateSelectedShip();
 						break;
@@ -484,43 +484,37 @@ public class Game extends PApplet {
 
 	@Override
 	public void mouseReleased() {
-		switch (currentState) {
-			case OwnTurn:
-				//Shoot at enemy play field if left mouse button was pressed inside it
-				if (mouseButton == LEFT && isInsideEnemyPlayField(mouseX, mouseY)) {
-					shootAtEnemy();
-				}
-				break;
-			case EnemyTurn:
-				//Shoot at own play field if left mouse button was pressed inside it
-				if (mouseButton == LEFT && isInsideOwnPlayField(mouseX, mouseY)) {
-					shootAtEnemy();
-				}
-				break;
-			case PickShips:
-				switch (mouseButton) {
-					case LEFT:
-						if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) {
-							//Add ship to map
-							addShip();
-						} else {
-							//Select ship from list
-							selectShip();
-						}
+		switch (mouseButton) {
+			case LEFT:
+				switch (currentState) {
+					case OwnTurn:
+						if (isInsideEnemyPlayField(mouseX, mouseY)) shootAtEnemy();
 						break;
-					case RIGHT:
-						//Deselect selected ship
-						selectedShip.setLength(0);
+					case EnemyTurn:
+						if (isInsideOwnPlayField(mouseX, mouseY)) shootAtEnemy();
+						break;
+					case PickShips:
+						if (isInsideOwnPlayField(mouseX, mouseY) && selectedShip.getLength() > 0) addShip();
+						else selectShip();
+						break;
+					case Won:
+					case Lost:
+						restartGame();
 						break;
 				}
+				break;
+			case RIGHT:
+				//Deselect selected ship
+				selectedShip.setLength(0);
+				break;
 		}
 	}
 
-	public String getCellText(int x, int y){
+	public String getCellText(int x, int y) {
 		return (char)('A' + y) + "" + (x + 1);
 	}
 
-	private void restartGame(){
+	private void restartGame() {
 		ownField.reset();
 		enemyField.reset();
 
@@ -620,7 +614,7 @@ public class Game extends PApplet {
 	}
 
 	private void shootAtEnemy() {
-		if(currentState != GameState.OwnTurn) return;
+		if (currentState != GameState.OwnTurn) return;
 
 		int cellX;
 		int cellY;
@@ -635,16 +629,16 @@ public class Game extends PApplet {
 		if (switchTurns) switchTurns();
 	}
 
-	private void cpuShootAtPlayer(){
-		if(currentState != GameState.EnemyTurn) return;
+	private void cpuShootAtPlayer() {
+		if (currentState != GameState.EnemyTurn) return;
 
 		int cellX;
 		int cellY;
 
-		do{
+		do {
 			cellX = (int)(Math.random() * numOfPlayFieldCells);
 			cellY = (int)(Math.random() * numOfPlayFieldCells);
-		}while(!ownField.getShotAt(cellX, cellY));
+		} while (!ownField.getShotAt(cellX, cellY));
 
 		switchTurns();
 	}
