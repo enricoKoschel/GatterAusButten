@@ -192,7 +192,7 @@ public class Game extends PApplet {
 		text(text, width / 2f - textWidth(text) / 2, height / 2f);
 
 		textSize(bigTextSize);
-		String retryText = "Drücke 'R' um erneut zu spielen";
+		String retryText = "Drücke 'R' oder Linksklick um erneut zu spielen";
 		text(retryText, width / 2f - textWidth(retryText) / 2, height / 2f + bigTextSize);
 
 		popStyle();
