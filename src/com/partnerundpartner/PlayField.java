@@ -150,6 +150,7 @@ public class PlayField {
 		do {
 			totalNumberOfShipsRemaining = 0;
 			for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
+			if(totalNumberOfShipsRemaining <= 0) return;
 
 			int cellX = (int)(Math.random() * size);
 			int cellY = (int)(Math.random() * size);
@@ -163,7 +164,7 @@ public class PlayField {
 
 			if (addShip(cellX, cellY, maxRemainingShipLength.get(), orientation))
 				remainingShipsToSelect.merge(maxRemainingShipLength.get(), -1, Integer::sum);
-		} while (totalNumberOfShipsRemaining > 0);
+		} while (true);
 	}
 
 	public HashMap<Integer, Integer> getRemainingShipsToSelect() {
