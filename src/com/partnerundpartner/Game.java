@@ -206,7 +206,7 @@ public class Game extends PApplet {
 
 		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
 
-		drawMiddleSection("Verlauf", middleSectionXPosition, middleSectionYPosition);
+		drawMiddleSection("Info", middleSectionXPosition, middleSectionYPosition);
 
 		drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap(), true);
 
@@ -304,6 +304,21 @@ public class Game extends PApplet {
 
 			text(text, x + middleSectionWidth / 2f - textWidth(text) / 2, textY);
 		}
+
+		//Display number of remaining enemy ships
+		String heading = "Gegner Schiffe";
+
+		textSize(bigTextSize);
+		text(heading, x + middleSectionWidth / 2f - textWidth(heading) / 2, width * 0.30f);
+
+		textSize(middleTextSize);
+		String oneLong = "Einer Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 1).count();
+		String twoLong = "Zweier Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 2).count();
+		String threeLong = "Dreier Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 3).count();
+
+		text(oneLong, x + middleSectionWidth / 2f - textWidth(oneLong) / 2, width * 0.34f);
+		text(twoLong, x + middleSectionWidth / 2f - textWidth(twoLong) / 2, width * 0.37f);
+		text(threeLong, x + middleSectionWidth / 2f - textWidth(threeLong) / 2, width * 0.4f);
 
 		popStyle();
 	}

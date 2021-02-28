@@ -181,4 +181,8 @@ public class PlayField {
 	public int getNumberOfLivingShips() {
 		return livingShips.size();
 	}
+
+	public ArrayList<Ship> getLivingShips() {
+		return livingShips;
+	}
 }
