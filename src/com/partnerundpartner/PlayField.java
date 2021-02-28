@@ -1,10 +1,17 @@
 package com.partnerundpartner;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayField {
+	enum ShotType {
+		Miss,
+		Hit,
+		Sunk,
+		Invalid
+	}
+
 	private final int size;
 	private final Ship.State[][] map;
 	private final ArrayList<Ship> livingShips;
@@ -42,17 +49,13 @@ public class PlayField {
 		map[x][y] = state;
 	}
 
-	private void damageShipAt(int x, int y) {
+	private boolean damageShipAt(int x, int y) {
 		for (Ship ship : livingShips) {
 			for (int i = 0; i < ship.getLength(); i++) {
-				if (ship.getOrientation() == Ship.Orientation.Vertical) {
-					if (ship.getX() == x && ship.getY() + i == y) {
-						ship.getDamaged();
-					}
+				if (ship.getOrientation() == Ship.Orientation.Horizontal) {
+					if (ship.getX() + i == x && ship.getY() == y) ship.getDamaged();
 				} else {
-					if (ship.getX() + i == x && ship.getY() == y) {
-						ship.getDamaged();
-					}
+					if (ship.getX() == x && ship.getY() + i == y) ship.getDamaged();
 				}
 			}
 
@@ -67,16 +70,13 @@ public class PlayField {
 				Ship.Orientation orientation = ship.getOrientation();
 
 				for (int i = 0; i < length; i++) {
-					if (orientation == Ship.Orientation.Vertical) {
-						changeStateAt(shipX, shipY + i, Ship.State.Sunk_Ship);
-					} else {
-						changeStateAt(shipX + i, shipY, Ship.State.Sunk_Ship);
-					}
+					if (orientation == Ship.Orientation.Vertical) changeStateAt(shipX, shipY + i, Ship.State.Sunk_Ship);
+					else changeStateAt(shipX + i, shipY, Ship.State.Sunk_Ship);
 				}
 			}
 		}
 
-		livingShips.removeIf(ship -> ship.getHealth() <= 0);
+		return livingShips.removeIf(ship -> ship.getHealth() <= 0);
 	}
 
 	public boolean addShip(int x, int y, int length, Ship.Orientation orientation) {
@@ -128,20 +128,19 @@ public class PlayField {
 		return map[x][y] != Ship.State.Water;
 	}
 
-	public boolean getShotAt(int x, int y) {
+	public ShotType getShotAt(int x, int y) {
 		switch (stateAt(x, y)) {
 			case Living_Ship:
-				damageShipAt(x, y);
-				return true;
+				return damageShipAt(x, y) ? ShotType.Sunk : ShotType.Hit;
 			case Water:
 				changeStateAt(x, y, Ship.State.Miss);
-				return true;
+				return ShotType.Miss;
 			case Miss:
 			case Hit_Ship:
-				return false;
+				return ShotType.Invalid;
 		}
 
-		return false;
+		return ShotType.Invalid;
 	}
 
 	public void placeShipsRandomly() {
@@ -150,7 +149,7 @@ public class PlayField {
 		do {
 			totalNumberOfShipsRemaining = 0;
 			for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
-			if(totalNumberOfShipsRemaining <= 0) return;
+			if (totalNumberOfShipsRemaining <= 0) return;
 
 			int cellX = (int)(Math.random() * size);
 			int cellY = (int)(Math.random() * size);

@@ -86,16 +86,6 @@ public class Game extends PApplet {
 	public void settings() {
 		//Called once at program start
 		size(startingWidth, startingHeight);
-
-		//TODO remove
-		infoText.add("getroffen");
-		infoText.add("Spieler schießt auf A7");
-		infoText.add("");
-		infoText.add("verfehlt");
-		infoText.add("Gegner schießt auf C3");
-		infoText.add("");
-		infoText.add("versenkt");
-		infoText.add("Spieler schießt auf G6");
 	}
 
 	@Override
@@ -304,18 +294,13 @@ public class Game extends PApplet {
 		fill(255);
 		textSize(middleTextSize);
 
+		//Remove old text and only leave newest 2
+		while (infoText.size() > 6) infoText.remove(0);
+
 		for (int i = 0; i < infoText.size(); i++) {
-			String text = infoText.get(infoText.size() - 1 - i);
+			String text = infoText.get(infoText.size() - i - 1);
 
 			float textY = y + width / 50f + i * (width / 45f);
-
-			//Remove all 3 connected texts from list if one is offscreen
-			if (textY >= y - width / 50f + middleSectionHeight) {
-				infoText.remove(infoText.size() - 1 - i);
-				infoText.remove(infoText.size() - i);
-				infoText.remove(infoText.size() - i + 1);
-				i--;
-			}
 
 			text(text, x + middleSectionWidth / 2f - textWidth(text) / 2, textY);
 		}
@@ -472,7 +457,7 @@ public class Game extends PApplet {
 				break;
 
 
-			//TODO remove, for debug only
+			//TODO: remove, for debug only
 			case 'w':
 				currentState = GameState.Won;
 				break;
@@ -523,6 +508,8 @@ public class Game extends PApplet {
 		selectedShip.setLength(0);
 		selectedShip.setOrientation(Ship.Orientation.Horizontal);
 
+		infoText.clear();
+
 		currentState = GameState.PickShips;
 	}
 
@@ -536,9 +523,7 @@ public class Game extends PApplet {
 		remainingShipsToSelect.merge(selectedShip.getLength(), -1, Integer::sum);
 
 		//Deselect ship if there are no remaining ships of that length
-		if (remainingShipsToSelect.get(selectedShip.getLength()) <= 0) {
-			selectedShip.setLength(0);
-		}
+		if (remainingShipsToSelect.get(selectedShip.getLength()) <= 0) selectedShip.setLength(0);
 
 		ownField.setRemainingShipsToSelect(remainingShipsToSelect);
 
@@ -616,17 +601,17 @@ public class Game extends PApplet {
 	private void shootAtEnemy() {
 		if (currentState != GameState.OwnTurn) return;
 
-		int cellX;
-		int cellY;
-		boolean switchTurns;
+		int cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
+		int cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
 
-		cellX = getSelectedCell(mouseX - enemyPlayFieldXPosition, cellSize);
-		cellY = getSelectedCell(mouseY - enemyPlayFieldYPosition, cellSize);
-
-		switchTurns = enemyField.getShotAt(cellX, cellY);
+		PlayField.ShotType shotType = enemyField.getShotAt(cellX, cellY);
 
 		//Switch turns
-		if (switchTurns) switchTurns();
+		if (shotType != PlayField.ShotType.Invalid) {
+			addShotHistory(cellX, cellY, shotType, false);
+
+			switchTurns();
+		}
 	}
 
 	private void cpuShootAtPlayer() {
@@ -634,11 +619,16 @@ public class Game extends PApplet {
 
 		int cellX;
 		int cellY;
+		PlayField.ShotType shotType;
 
 		do {
 			cellX = (int)(Math.random() * numOfPlayFieldCells);
 			cellY = (int)(Math.random() * numOfPlayFieldCells);
-		} while (!ownField.getShotAt(cellX, cellY));
+
+			shotType = ownField.getShotAt(cellX, cellY);
+		} while (shotType == PlayField.ShotType.Invalid);
+
+		addShotHistory(cellX, cellY, shotType, true);
 
 		switchTurns();
 	}
@@ -646,6 +636,26 @@ public class Game extends PApplet {
 	private void checkWinCondition() {
 		if (ownField.getNumberOfLivingShips() <= 0) currentState = GameState.Lost;
 		else if (enemyField.getNumberOfLivingShips() <= 0) currentState = GameState.Won;
+	}
+
+	private void addShotHistory(int x, int y, PlayField.ShotType shotType, boolean enemyShot) {
+		infoText.add("");
+		switch (shotType) {
+			case Miss:
+				infoText.add("verfehlt");
+				break;
+			case Hit:
+				infoText.add("getroffen");
+				break;
+			case Sunk:
+				infoText.add("versenkt");
+				break;
+		}
+
+		String shooter = enemyShot ? "Gegner" : "Spieler";
+		String cellText = getCellText(x, y);
+
+		infoText.add(shooter + " schießt auf " + cellText);
 	}
 
 	private void switchTurns() {
