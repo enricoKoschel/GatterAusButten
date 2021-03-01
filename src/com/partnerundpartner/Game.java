@@ -230,7 +230,7 @@ public class Game extends PApplet {
 	private void drawPickShipsScreen() {
 		pushStyle();
 
-		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
+		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField, false);
 
 		drawShipList(shipListXPosition, shipListYPosition);
 		drawShipPlaceholder();
@@ -243,18 +243,18 @@ public class Game extends PApplet {
 	private void drawMainGameScreen() {
 		pushStyle();
 
-		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField.getMap(), false);
+		drawPlayField("Eigenes Feld", ownPlayFieldXPosition, ownPlayFieldYPosition, ownField, false);
 
 		drawMiddleSection("Info", middleSectionXPosition, middleSectionYPosition);
 
-		drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField.getMap(), true);
+		drawPlayField("Gegnerisches Feld", enemyPlayFieldXPosition, enemyPlayFieldYPosition, enemyField, true);
 
 		drawMiddleSectionContents(middleSectionXPosition, middleSectionYPosition);
 
 		popStyle();
 	}
 
-	private void drawPlayField(String title, float x, float y, Ship.State[][] map, boolean isEnemy) {
+	private void drawPlayField(String title, float x, float y, PlayField playField, boolean isEnemy) {
 		pushStyle();
 
 		textSize(bigTextSize);
@@ -266,7 +266,7 @@ public class Game extends PApplet {
 
 		for (int cellY = 0; cellY < numOfPlayFieldCells; cellY++) {
 			for (int cellX = 0; cellX < numOfPlayFieldCells; cellX++) {
-				switch (map[cellX][cellY]) {
+				switch (playField.getStateAt(cellX, cellY)) {
 					case Living_Ship:
 						//If drawing enemy field, show living ships as water
 						if (isEnemy) fill(0, 0, 255);
@@ -671,7 +671,7 @@ public class Game extends PApplet {
 	private void cpuShootAtPlayer() {
 		if (currentState != GameState.EnemyTurn) return;
 
-		AI.shootAt(ownField, AI.Difficulty.Easy);
+		AI.shootAt(ownField, AI.Difficulty.Middle);
 
 		addShotHistory(AI.getLastHitX(), AI.getLastHitY(), AI.getLastHitShotType(), true);
 

@@ -48,7 +48,15 @@ public class PlayField {
 		livingShips.clear();
 	}
 
-	public Ship.State stateAt(int x, int y) {
+	public Ship.State getStateAt(int x, int y) {
+		if (x < 0 || x >= size || y < 0 || y >= size) throw new IllegalArgumentException();
+
+		return map[x][y];
+	}
+
+	public Ship.State getStateAtOutOfBoundsWater(int x, int y) {
+		if (x < 0 || x >= size || y < 0 || y >= size) return Ship.State.Water;
+
 		return map[x][y];
 	}
 
@@ -135,7 +143,7 @@ public class PlayField {
 	}
 
 	public ShotType getShotAt(int x, int y) {
-		switch (stateAt(x, y)) {
+		switch (getStateAt(x, y)) {
 			case Living_Ship:
 				hitShots++;
 				return damageShipAt(x, y) ? ShotType.Sunk : ShotType.Hit;
@@ -180,10 +188,6 @@ public class PlayField {
 
 	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
 		this.remainingShipsToSelect = remainingShipsToSelect;
-	}
-
-	public Ship.State[][] getMap() {
-		return map;
 	}
 
 	public int getNumberOfLivingShips() {
