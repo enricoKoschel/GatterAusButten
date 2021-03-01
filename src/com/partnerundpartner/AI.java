@@ -3,7 +3,7 @@ package com.partnerundpartner;
 public final class AI {
 	enum Difficulty {
 		Easy,
-		Middle,
+		Medium,
 		Hard,
 		Impossible
 	}
@@ -26,8 +26,8 @@ public final class AI {
 			case Easy:
 				shootEasy(playField);
 				break;
-			case Middle:
-				shootMiddle(playField);
+			case Medium:
+				shootMedium(playField);
 				break;
 		}
 	}
@@ -42,7 +42,7 @@ public final class AI {
 		} while (lastHitShotType == PlayField.ShotType.Invalid);
 	}
 
-	private static void shootMiddle(PlayField playField) {
+	private static void shootMedium(PlayField playField) {
 		//Shoot at random cell where it is not impossible for a ship to be
 		do {
 			lastHitX = getRandomCell(playField);
