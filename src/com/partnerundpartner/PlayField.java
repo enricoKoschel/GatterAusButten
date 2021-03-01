@@ -117,12 +117,11 @@ public class PlayField {
 	private boolean areSurroundingShipsInvalid(int x, int y) {
 		//Surrounding ships (diagonals are ignored)
 		//X,X  0,-1 X,X
-		//-1,0 0,0 +1,0
+		//-1,0 X,X +1,0
 		//X,X  0,+1 X,X
 
 		return isInvalidSingleShipPositionNoEdges(x, y - 1) || isInvalidSingleShipPositionNoEdges(x - 1, y)
-				|| isInvalidSingleShipPositionNoEdges(x, y) || isInvalidSingleShipPositionNoEdges(x + 1, y)
-				|| isInvalidSingleShipPositionNoEdges(x, y + 1);
+				|| isInvalidSingleShipPositionNoEdges(x + 1, y) || isInvalidSingleShipPositionNoEdges(x, y + 1);
 	}
 
 	private boolean isInvalidSingleShipPosition(int x, int y) {
@@ -203,7 +202,7 @@ public class PlayField {
 		return hitShots;
 	}
 
-	public int getSize(){
+	public int getSize() {
 		return size;
 	}
 }
