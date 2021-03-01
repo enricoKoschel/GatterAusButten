@@ -45,6 +45,9 @@ public class Game extends PApplet {
 	private float shipListXPosition;
 	private float shipListYPosition;
 
+	private float statisticsXPosition;
+	private float statisticsYPosition;
+
 	//See updateLayout()
 	private final boolean funkyResize;
 
@@ -155,6 +158,9 @@ public class Game extends PApplet {
 
 		rulesTextXPosition = shipListXPosition;
 		rulesTextYPosition = width * 0.2f;
+
+		statisticsXPosition = width * 0.05f;
+		statisticsYPosition = width * 0.4f;
 	}
 
 	private void drawWinScreen() {
@@ -162,6 +168,7 @@ public class Game extends PApplet {
 
 		fill(0, 255, 0);
 		drawMiddleText("Gewonnen!");
+		drawStatistics(statisticsXPosition, statisticsYPosition);
 
 		popStyle();
 	}
@@ -171,6 +178,7 @@ public class Game extends PApplet {
 
 		fill(255, 0, 0);
 		drawMiddleText("Verloren!");
+		drawStatistics(statisticsXPosition, statisticsYPosition);
 
 		popStyle();
 	}
@@ -184,6 +192,37 @@ public class Game extends PApplet {
 		textSize(bigTextSize);
 		String retryText = "Drücke 'R' oder Linksklick um erneut zu spielen";
 		text(retryText, width / 2f - textWidth(retryText) / 2, height / 2f + bigTextSize);
+
+		popStyle();
+	}
+
+	private void drawStatistics(float x, float y) {
+		pushStyle();
+
+		drawStatisticsHalf(x, y, enemyField, "Du:");
+		drawStatisticsHalf(x + width / 2f, y, ownField, "Gegner:");
+
+		popStyle();
+	}
+
+	private void drawStatisticsHalf(float x, float y, PlayField playField, String title) {
+		pushStyle();
+
+		int totalShots = playField.getMissedShots() + playField.getHitShots();
+		int totalPercentage = totalShots > 0 ? 100 : 0;
+
+		int missedShots = playField.getMissedShots();
+		int missedPercentage = totalShots > 0 ? Math.round((float)(missedShots) / totalShots * 100) : 0;
+
+		int hitShots = playField.getHitShots();
+		int hitPercentage = totalShots > 0 ? Math.round((float)(hitShots) / totalShots * 100) : 0;
+
+		fill(255);
+		textSize(bigTextSize);
+		text(title, x, y);
+		text("    Verfehlte Schüsse: " + missedShots + " --> " + missedPercentage + "%", x, y + bigTextSize);
+		text("    Getroffene Schüsse: " + hitShots + " --> " + hitPercentage + "%", x, y + bigTextSize * 2);
+		text("    Schüsse insgesamt: " + totalShots + " --> " + totalPercentage + "%", x, y + bigTextSize * 3);
 
 		popStyle();
 	}

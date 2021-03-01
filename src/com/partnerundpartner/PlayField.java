@@ -14,8 +14,12 @@ public class PlayField {
 
 	private final int size;
 	private final Ship.State[][] map;
+
 	private final ArrayList<Ship> livingShips;
 	private HashMap<Integer, Integer> remainingShipsToSelect;
+
+	private int missedShots;
+	private int hitShots;
 
 	public PlayField(int size) {
 		this.size = size;
@@ -37,6 +41,9 @@ public class PlayField {
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) map[x][y] = Ship.State.Water;
 		}
+
+		missedShots = 0;
+		hitShots = 0;
 
 		livingShips.clear();
 	}
@@ -131,8 +138,10 @@ public class PlayField {
 	public ShotType getShotAt(int x, int y) {
 		switch (stateAt(x, y)) {
 			case Living_Ship:
+				hitShots++;
 				return damageShipAt(x, y) ? ShotType.Sunk : ShotType.Hit;
 			case Water:
+				missedShots++;
 				changeStateAt(x, y, Ship.State.Miss);
 				return ShotType.Miss;
 			case Miss:
@@ -184,5 +193,13 @@ public class PlayField {
 
 	public ArrayList<Ship> getLivingShips() {
 		return livingShips;
+	}
+
+	public int getMissedShots() {
+		return missedShots;
+	}
+
+	public int getHitShots() {
+		return hitShots;
 	}
 }
