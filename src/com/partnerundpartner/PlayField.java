@@ -202,4 +202,8 @@ public class PlayField {
 	public int getHitShots() {
 		return hitShots;
 	}
+
+	public int getSize(){
+		return size;
+	}
 }

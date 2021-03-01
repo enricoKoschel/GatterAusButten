@@ -671,18 +671,9 @@ public class Game extends PApplet {
 	private void cpuShootAtPlayer() {
 		if (currentState != GameState.EnemyTurn) return;
 
-		int cellX;
-		int cellY;
-		PlayField.ShotType shotType;
+		AI.shootAt(ownField, AI.Difficulty.Easy);
 
-		do {
-			cellX = (int)(Math.random() * numOfPlayFieldCells);
-			cellY = (int)(Math.random() * numOfPlayFieldCells);
-
-			shotType = ownField.getShotAt(cellX, cellY);
-		} while (shotType == PlayField.ShotType.Invalid);
-
-		addShotHistory(cellX, cellY, shotType, true);
+		addShotHistory(AI.getLastHitX(), AI.getLastHitY(), AI.getLastHitShotType(), true);
 
 		switchTurns();
 	}
