@@ -35,8 +35,7 @@ public final class AI {
 	private static void shootEasy(PlayField playField) {
 		//Shoot at random cell
 		do {
-			lastHitX = getRandomCell(playField);
-			lastHitY = getRandomCell(playField);
+			setCellsRandom(playField);
 
 			lastHitShotType = playField.getShotAt(lastHitX, lastHitY);
 		} while (lastHitShotType == PlayField.ShotType.Invalid);
@@ -45,8 +44,7 @@ public final class AI {
 	private static void shootMedium(PlayField playField) {
 		//Shoot at random cell where it is not impossible for a ship to be
 		do {
-			lastHitX = getRandomCell(playField);
-			lastHitY = getRandomCell(playField);
+			setCellsRandom(playField);
 
 			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
 				lastHitShotType = PlayField.ShotType.Invalid;
@@ -96,8 +94,9 @@ public final class AI {
 		return playField.getStateAt(x, y) == Ship.State.Sunk_Ship;
 	}
 
-	private static int getRandomCell(PlayField playField) {
-		return (int)(Math.random() * playField.getSize());
+	private static void setCellsRandom(PlayField playField) {
+		lastHitX = (int)(Math.random() * playField.getSize());
+		lastHitY = (int)(Math.random() * playField.getSize());
 	}
 
 	public static void setDifficulty(Difficulty difficulty) {
