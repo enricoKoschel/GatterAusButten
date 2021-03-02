@@ -1,5 +1,7 @@
 package com.partnerundpartner;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -208,5 +210,46 @@ public class PlayField {
 
 	public int getSize() {
 		return size;
+	}
+
+	public Pair<Integer, Integer> getRandomCellNextToHitShip() {
+		ArrayList<Pair<Integer, Integer>> allCells = new ArrayList<>();
+
+		//Surrounding ships (diagonals are ignored)
+		//X,X  0,-1 X,X
+		//-1,0 X,X +1,0
+		//X,X  0,+1 X,X
+
+		for (int y = 0; y < size; y++) {
+			for (int x = 0; x < size; x++) {
+				if (getStateAtOutOfBoundsWater(x, y - 1) == Ship.State.Hit_Ship || getStateAtOutOfBoundsWater(x - 1, y) == Ship.State.Hit_Ship
+						|| getStateAtOutOfBoundsWater(x + 1, y) == Ship.State.Hit_Ship || getStateAtOutOfBoundsWater(x, y + 1) == Ship.State.Hit_Ship)
+				{
+					allCells.add(Pair.of(x, y));
+				}
+			}
+		}
+
+		if (allCells.size() <= 0) return Pair.of(-1, -1);
+
+		int randomIndex = (int)(Math.random() * allCells.size());
+
+		return allCells.get(randomIndex);
+	}
+
+	public Pair<Integer, Integer> getRandomCellWithLivingShip() {
+		ArrayList<Pair<Integer, Integer>> allCells = new ArrayList<>();
+
+		for (int y = 0; y < size; y++) {
+			for (int x = 0; x < size; x++) {
+				if (getStateAtOutOfBoundsWater(x, y) == Ship.State.Living_Ship) allCells.add(Pair.of(x, y));
+			}
+		}
+
+		if (allCells.size() <= 0) return Pair.of(-1, -1);
+
+		int randomIndex = (int)(Math.random() * allCells.size());
+
+		return allCells.get(randomIndex);
 	}
 }
