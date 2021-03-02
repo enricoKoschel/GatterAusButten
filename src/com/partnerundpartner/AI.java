@@ -34,6 +34,9 @@ public final class AI {
 			case Hard:
 				shootHard(playField);
 				break;
+			case Impossible:
+				shootImpossible(playField);
+				break;
 		}
 	}
 
@@ -63,11 +66,29 @@ public final class AI {
 	private static void shootHard(PlayField playField) {
 		//Only shoot at cells where a ship is guaranteed. If there is no guaranteed spot, shoot randomly until there is
 		do {
-			setCellsSpecific(playField);
+			setCellsNextToHitShip(playField);
 
 			//If no cell next to hit ships where found, shoot randomly
 			if (lastHitX == -1 || lastHitY == -1)  setCellsRandom(playField);
 
+			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
+				lastHitShotType = PlayField.ShotType.Invalid;
+				continue;
+			}
+
+			lastHitShotType = playField.getShotAt(lastHitX, lastHitY);
+		} while (lastHitShotType == PlayField.ShotType.Invalid);
+	}
+
+	private static void shootImpossible(PlayField playField){
+		//Shoot at a random cell, that has a living ship on it
+		do {
+			setCellsToLivingShip(playField);
+
+			//Sanity check, should always have cells with living ships
+			if (lastHitX == -1 || lastHitY == -1)  setCellsRandom(playField);
+
+			//Sanity check as well, should always pass
 			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
 				lastHitShotType = PlayField.ShotType.Invalid;
 				continue;
@@ -121,8 +142,15 @@ public final class AI {
 		lastHitY = (int)(Math.random() * playField.getSize());
 	}
 
-	private static void setCellsSpecific(PlayField playField) {
+	private static void setCellsNextToHitShip(PlayField playField) {
 		Pair<Integer, Integer> cell = playField.getRandomCellNextToHitShip();
+
+		lastHitX = cell.getLeft();
+		lastHitY = cell.getRight();
+	}
+
+	private static void setCellsToLivingShip(PlayField playField){
+		Pair<Integer, Integer> cell = playField.getRandomCellWithLivingShip();
 
 		lastHitX = cell.getLeft();
 		lastHitY = cell.getRight();
