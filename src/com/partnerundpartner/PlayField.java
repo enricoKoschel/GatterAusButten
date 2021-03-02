@@ -18,7 +18,7 @@ public class PlayField {
 	private final Ship.State[][] map;
 
 	private final ArrayList<Ship> livingShips;
-	private HashMap<Integer, Integer> remainingShipsToSelect;
+	private final HashMap<Integer, Integer> remainingShipsToSelect;
 
 	private int missedShots;
 	private int hitShots;
@@ -189,15 +189,15 @@ public class PlayField {
 	}
 
 	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
-		this.remainingShipsToSelect = remainingShipsToSelect;
+		this.remainingShipsToSelect.putAll(remainingShipsToSelect);
 	}
 
 	public int getNumberOfLivingShips() {
 		return livingShips.size();
 	}
 
-	public ArrayList<Ship> getLivingShips() {
-		return livingShips;
+	public int getNumberOfLivingShips(int size) {
+		return (int)livingShips.stream().filter(ship -> ship.getLength() == size).count();
 	}
 
 	public int getMissedShots() {
@@ -251,5 +251,15 @@ public class PlayField {
 		int randomIndex = (int)(Math.random() * allCells.size());
 
 		return allCells.get(randomIndex);
+	}
+
+	public int getNumberOfRemainingShipParts() {
+		if(livingShips.size() <= 0) return 0;
+
+		int sum = 0;
+
+		for (Ship livingShip : livingShips) sum += livingShip.getHealth();
+
+		return sum;
 	}
 }

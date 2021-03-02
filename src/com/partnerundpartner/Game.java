@@ -80,7 +80,7 @@ public class Game extends PApplet {
 
 	private GameState currentState = GameState.PickShips;
 
-	private HashMap<Integer, Integer> remainingShipsToSelect;
+	private final HashMap<Integer, Integer> remainingShipsToSelect;
 
 	//Dummy ship for placing new ships
 	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
@@ -208,6 +208,19 @@ public class Game extends PApplet {
 	private void drawStatisticsHalf(float x, float y, PlayField playField, String title) {
 		pushStyle();
 
+		fill(255);
+		textSize(bigTextSize);
+		text(title, x, y);
+
+		drawStatisticsShots(x, y, playField);
+		drawStatisticsShipParts(x, y + bigTextSize * 5, playField);
+
+		popStyle();
+	}
+
+	private void drawStatisticsShots(float x,  float y, PlayField playField){
+		pushStyle();
+
 		int totalShots = playField.getMissedShots() + playField.getHitShots();
 		int totalPercentage = totalShots > 0 ? 100 : 0;
 
@@ -219,10 +232,22 @@ public class Game extends PApplet {
 
 		fill(255);
 		textSize(bigTextSize);
-		text(title, x, y);
 		text("    Verfehlte Schüsse: " + missedShots + " --> " + missedPercentage + "%", x, y + bigTextSize);
 		text("    Getroffene Schüsse: " + hitShots + " --> " + hitPercentage + "%", x, y + bigTextSize * 2);
 		text("    Schüsse insgesamt: " + totalShots + " --> " + totalPercentage + "%", x, y + bigTextSize * 3);
+
+		popStyle();
+	}
+
+	private void drawStatisticsShipParts(float x,  float y, PlayField playField){
+		pushStyle();
+
+		int missedShipParts = playField.getNumberOfRemainingShipParts();
+
+		fill(255);
+		textSize(bigTextSize);
+
+		text("    Verbleibende Schiffsteile: " + missedShipParts, x, y + middleTextSize);
 
 		popStyle();
 	}
@@ -351,9 +376,9 @@ public class Game extends PApplet {
 		text(heading, x + middleSectionWidth / 2f - textWidth(heading) / 2, width * 0.30f);
 
 		textSize(middleTextSize);
-		String oneLong = "Einer Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 1).count();
-		String twoLong = "Zweier Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 2).count();
-		String threeLong = "Dreier Schiffe - " + enemyField.getLivingShips().stream().filter(ship -> ship.getLength() == 3).count();
+		String oneLong = "Einer Schiffe - " + enemyField.getNumberOfLivingShips(1);
+		String twoLong = "Zweier Schiffe - " + enemyField.getNumberOfLivingShips(2);
+		String threeLong = "Dreier Schiffe - " + enemyField.getNumberOfLivingShips(3);
 
 		text(oneLong, x + middleSectionWidth / 2f - textWidth(oneLong) / 2, width * 0.34f);
 		text(twoLong, x + middleSectionWidth / 2f - textWidth(twoLong) / 2, width * 0.37f);
@@ -513,10 +538,10 @@ public class Game extends PApplet {
 
 			//TODO: remove, for debug only
 			case 'w':
-				currentState = GameState.Won;
+				if(currentState == GameState.OwnTurn || currentState == GameState.EnemyTurn) currentState = GameState.Won;
 				break;
 			case 'l':
-				currentState = GameState.Lost;
+				if(currentState == GameState.OwnTurn || currentState == GameState.EnemyTurn) currentState = GameState.Lost;
 				break;
 		}
 	}
@@ -557,7 +582,7 @@ public class Game extends PApplet {
 		ownField.reset();
 		enemyField.reset();
 
-		remainingShipsToSelect = ownField.getRemainingShipsToSelect();
+		remainingShipsToSelect.putAll(ownField.getRemainingShipsToSelect());
 
 		selectedShip.setLength(0);
 		selectedShip.setOrientation(Ship.Orientation.Horizontal);
@@ -584,7 +609,7 @@ public class Game extends PApplet {
 		int totalNumberOfShipsRemaining = 0;
 		for (int remaining : remainingShipsToSelect.values()) totalNumberOfShipsRemaining += remaining;
 
-		//If there are no more ships to select, place the enemy ships randomly and decide who starts playing first
+		//If there are no more ships to select, start the game
 		if (totalNumberOfShipsRemaining <= 0) startMainGame();
 	}
 
