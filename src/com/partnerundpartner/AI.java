@@ -1,5 +1,7 @@
 package com.partnerundpartner;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public final class AI {
 	enum Difficulty {
 		Easy,
@@ -29,6 +31,9 @@ public final class AI {
 			case Medium:
 				shootMedium(playField);
 				break;
+			case Hard:
+				shootHard(playField);
+				break;
 		}
 	}
 
@@ -45,6 +50,23 @@ public final class AI {
 		//Shoot at random cell where it is not impossible for a ship to be
 		do {
 			setCellsRandom(playField);
+
+			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
+				lastHitShotType = PlayField.ShotType.Invalid;
+				continue;
+			}
+
+			lastHitShotType = playField.getShotAt(lastHitX, lastHitY);
+		} while (lastHitShotType == PlayField.ShotType.Invalid);
+	}
+
+	private static void shootHard(PlayField playField) {
+		//Only shoot at cells where a ship is guaranteed. If there is no guaranteed spot, shoot randomly until there is
+		do {
+			setCellsSpecific(playField);
+
+			//If no cell next to hit ships where found, shoot randomly
+			if (lastHitX == -1 || lastHitY == -1)  setCellsRandom(playField);
 
 			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
 				lastHitShotType = PlayField.ShotType.Invalid;
@@ -97,6 +119,13 @@ public final class AI {
 	private static void setCellsRandom(PlayField playField) {
 		lastHitX = (int)(Math.random() * playField.getSize());
 		lastHitY = (int)(Math.random() * playField.getSize());
+	}
+
+	private static void setCellsSpecific(PlayField playField) {
+		Pair<Integer, Integer> cell = playField.getRandomCellNextToHitShip();
+
+		lastHitX = cell.getLeft();
+		lastHitY = cell.getRight();
 	}
 
 	public static void setDifficulty(Difficulty difficulty) {

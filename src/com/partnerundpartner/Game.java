@@ -671,7 +671,7 @@ public class Game extends PApplet {
 	private void cpuShootAtPlayer() {
 		if (currentState != GameState.EnemyTurn) return;
 
-		AI.shootAt(ownField, AI.Difficulty.Medium);
+		AI.shootAt(ownField, AI.Difficulty.Hard);
 
 		addShotHistory(AI.getLastHitX(), AI.getLastHitY(), AI.getLastHitShotType(), true);
 
