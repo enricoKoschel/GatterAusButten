@@ -6,5 +6,12 @@
         <language minSize="46" name="Java" />
       </Languages>
     </inspection_tool>
+    <inspection_tool class="SuspiciousNameCombination" enabled="true" level="WARNING" enabled_by_default="true">
+      <group names="x,width" />
+      <group names="y,height" />
+      <ignored>
+        <option name="METHOD_MATCHER_CONFIG" value="java.io.PrintStream,println,java.io.PrintWriter,println,java.lang.System,identityHashCode,java.sql.PreparedStatement,set.*,java.sql.ResultSet,update.*,java.sql.SQLOutput,write.*,java.lang.Integer,compare.*,java.lang.Long,compare.*,java.lang.Short,compare,java.lang.Byte,compare,java.lang.Character,compare,java.lang.Boolean,compare,java.lang.Math,.*,java.lang.StrictMath,.*" />
+      </ignored>
+    </inspection_tool>
   </profile>
 </component>
