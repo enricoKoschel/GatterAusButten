@@ -18,14 +18,16 @@ public class PlayField {
 	private final Ship.State[][] map;
 
 	private final ArrayList<Ship> livingShips;
+	private final HashMap<Integer, Integer> initialShipsToSelect;
 	private final HashMap<Integer, Integer> remainingShipsToSelect;
 
 	private int missedShots;
 	private int hitShots;
 
-	public PlayField(int size) {
+	public PlayField(int size, HashMap<Integer, Integer> initialShipsToSelect) {
 		this.size = size;
 
+		this.initialShipsToSelect = initialShipsToSelect;
 		remainingShipsToSelect = new HashMap<>();
 
 		livingShips = new ArrayList<>();
@@ -36,9 +38,7 @@ public class PlayField {
 
 	public void reset() {
 		//Placeable ship amounts
-		remainingShipsToSelect.put(1, 3);
-		remainingShipsToSelect.put(2, 2);
-		remainingShipsToSelect.put(3, 2);
+		remainingShipsToSelect.putAll(initialShipsToSelect);
 
 		for (int y = 0; y < size; y++) {
 			for (int x = 0; x < size; x++) map[x][y] = Ship.State.Water;
@@ -188,6 +188,14 @@ public class PlayField {
 		return remainingShipsToSelect;
 	}
 
+	public int getRemainingShipsToSelect(int size) {
+		return remainingShipsToSelect.get(size);
+	}
+
+	public void decrementRemainingShipsToSelect(int size) {
+		remainingShipsToSelect.merge(size, -1, Integer::sum);
+	}
+
 	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
 		this.remainingShipsToSelect.putAll(remainingShipsToSelect);
 	}
@@ -254,7 +262,7 @@ public class PlayField {
 	}
 
 	public int getNumberOfRemainingShipParts() {
-		if(livingShips.size() <= 0) return 0;
+		if (livingShips.size() <= 0) return 0;
 
 		int sum = 0;
 
