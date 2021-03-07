@@ -188,6 +188,14 @@ public class PlayField {
 		return remainingShipsToSelect;
 	}
 
+	public int getRemainingShipsToSelect(int size) {
+		return remainingShipsToSelect.get(size);
+	}
+
+	public void decrementRemainingShipsToSelect(int size) {
+		remainingShipsToSelect.merge(size, -1, Integer::sum);
+	}
+
 	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
 		this.remainingShipsToSelect.putAll(remainingShipsToSelect);
 	}
@@ -254,7 +262,7 @@ public class PlayField {
 	}
 
 	public int getNumberOfRemainingShipParts() {
-		if(livingShips.size() <= 0) return 0;
+		if (livingShips.size() <= 0) return 0;
 
 		int sum = 0;
 
