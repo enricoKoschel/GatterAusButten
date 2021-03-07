@@ -1,6 +1,7 @@
 package com.partnerundpartner;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +78,10 @@ public class Game extends PApplet {
 		String[] processingArgs = {""};
 		PApplet.runSketch(processingArgs, this);
 		surface.setTitle("Schiffe versenken");
+		surface.setResizable(true);
+
+		PImage icon = loadImage("res/img/icon.png");
+		surface.setIcon(icon);
 	}
 
 	//Game variables
@@ -97,11 +102,6 @@ public class Game extends PApplet {
 	public void settings() {
 		//Called once at program start
 		size(startingWidth, startingHeight);
-	}
-
-	@Override
-	public void setup() {
-		surface.setResizable(true);
 	}
 
 	@Override
