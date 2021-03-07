@@ -10,7 +10,7 @@ public final class AI {
 		Impossible
 	}
 
-	private static Difficulty difficulty = Difficulty.Easy;
+	private static Difficulty difficulty = Difficulty.Hard;
 	private static int lastHitX = -1;
 	private static int lastHitY = -1;
 	private static PlayField.ShotType lastHitShotType = PlayField.ShotType.Invalid;
@@ -69,7 +69,7 @@ public final class AI {
 			setCellsNextToHitShip(playField);
 
 			//If no cell next to hit ships where found, shoot randomly
-			if (lastHitX == -1 || lastHitY == -1)  setCellsRandom(playField);
+			if (lastHitX == -1 || lastHitY == -1) setCellsRandom(playField);
 
 			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
 				lastHitShotType = PlayField.ShotType.Invalid;
@@ -80,13 +80,13 @@ public final class AI {
 		} while (lastHitShotType == PlayField.ShotType.Invalid);
 	}
 
-	private static void shootImpossible(PlayField playField){
+	private static void shootImpossible(PlayField playField) {
 		//Shoot at a random cell, that has a living ship on it
 		do {
 			setCellsToLivingShip(playField);
 
 			//Sanity check, should always have cells with living ships
-			if (lastHitX == -1 || lastHitY == -1)  setCellsRandom(playField);
+			if (lastHitX == -1 || lastHitY == -1) setCellsRandom(playField);
 
 			//Sanity check as well, should always pass
 			if (isShotPositionInvalid(lastHitX, lastHitY, playField)) {
@@ -149,7 +149,7 @@ public final class AI {
 		lastHitY = cell.getRight();
 	}
 
-	private static void setCellsToLivingShip(PlayField playField){
+	private static void setCellsToLivingShip(PlayField playField) {
 		Pair<Integer, Integer> cell = playField.getRandomCellWithLivingShip();
 
 		lastHitX = cell.getLeft();
