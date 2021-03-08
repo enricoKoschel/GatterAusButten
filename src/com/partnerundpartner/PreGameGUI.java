@@ -33,7 +33,7 @@ public class PreGameGUI extends JFrame {
 
 	private JButton btnStartGame;
 
-	public boolean gameStarted;
+	private boolean gameStarted;
 	public final Object lock = new Object();
 
 	public PreGameGUI(String title) {
@@ -69,6 +69,10 @@ public class PreGameGUI extends JFrame {
 
 		cbxDifficulty = new JComboBox<>(new String[]{"Einfach", "Normal", "Schwer", "Unmöglich"});
 		cbxDifficulty.setSelectedIndex(2);
+	}
+
+	public boolean isGameStarted() {
+		return gameStarted;
 	}
 
 	public AI.Difficulty getSelectedDifficulty() {

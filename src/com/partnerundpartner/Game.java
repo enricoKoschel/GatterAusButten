@@ -58,6 +58,9 @@ public class Game extends PApplet {
 
 	private final String version = "v0.7-beta";
 
+	public final Object lock = new Object();
+	private boolean exitToSettings;
+
 	public Game(int width, boolean forceAspectRatio, int numOfPlayFieldCells, AI.Difficulty aiDifficulty,
 				boolean shootAgainAfterHit, HashMap<Integer, Integer> shipAmounts) {
 		this.forceAspectRatio = forceAspectRatio;
@@ -523,7 +526,8 @@ public class Game extends PApplet {
 				"    Mittelklick / 'S' - Platzieren überspringen\n" +
 				"    Mausrad / 'R' - Schiff drehen\n" +
 				"    Linksklick - Platzieren / Schießen\n" +
-				"    Rechtsklick - Platzieren abbrechen\n\n" +
+				"    Rechtsklick - Platzieren abbrechen\n" +
+				"    Esc - Zu den Einstellungen\n" +
 				"Regeln:\n" +
 				"    Schiffe dürfen sich nicht berühren\n" +
 				"    Nach jedem Schuss wechselt der Spieler", x, y);
@@ -561,6 +565,21 @@ public class Game extends PApplet {
 				break;
 			case 's':
 				if (currentState == GameState.PickShips) startMainGame();
+				break;
+			case ESC:
+				//Processing window closes if escape key is not reset
+				key = 0;
+
+				if (currentState == GameState.PickShips) {
+					synchronized (lock) {
+						exitToSettings = true;
+						lock.notifyAll();
+					}
+
+					//FIXME Only stops thread and hides window, memory leak
+					surface.stopThread();
+					surface.setVisible(false);
+				}
 				break;
 		}
 	}
@@ -764,5 +783,9 @@ public class Game extends PApplet {
 	private boolean isInsideEnemyPlayField(float x, float y) {
 		return (x > enemyPlayFieldXPosition && x < enemyPlayFieldXPosition + playFieldSizeInPixels
 				&& y > enemyPlayFieldYPosition && y < enemyPlayFieldYPosition + playFieldSizeInPixels);
+	}
+
+	public boolean getExitToSettings() {
+		return exitToSettings;
 	}
 }
