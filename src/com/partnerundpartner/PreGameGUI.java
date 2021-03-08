@@ -39,6 +39,7 @@ public class PreGameGUI extends JFrame {
 	public PreGameGUI(String title) {
 		super(title);
 
+		setResizable(false);
 		setContentPane(mainPanel);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
