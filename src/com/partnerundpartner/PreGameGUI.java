@@ -76,7 +76,12 @@ public class PreGameGUI extends JFrame {
 		return gameStarted;
 	}
 
-	public AI.Difficulty getSelectedDifficulty() {
+	public GameSettings getSelectedSettings() {
+		return new GameSettings(getSelectedWindowSize(), getSelectedForceRatio(),
+				getSelectedPlayFieldSize(), getSelectedDifficulty(), getSelectedTurnOrder(), getSelectedShipAmounts());
+	}
+
+	private AI.Difficulty getSelectedDifficulty() {
 		switch (cbxDifficulty.getSelectedIndex()) {
 			case 0:
 				return AI.Difficulty.Easy;
@@ -91,23 +96,23 @@ public class PreGameGUI extends JFrame {
 		throw new IllegalStateException("Invalid difficulty selected!");
 	}
 
-	public int getSelectedPlayFieldSize() {
+	private int getSelectedPlayFieldSize() {
 		return (int)spnPlayFieldSize.getValue();
 	}
 
-	public boolean getSelectedTurnOrder() {
+	private boolean getSelectedTurnOrder() {
 		return chkAgain.isSelected();
 	}
 
-	public boolean getSelectedForceRatio() {
+	private boolean getSelectedForceRatio() {
 		return chkForceRatio.isSelected();
 	}
 
-	public int getSelectedWindowSize() {
+	private int getSelectedWindowSize() {
 		return (int)spnWindowSize.getValue();
 	}
 
-	public HashMap<Integer, Integer> getSelectedShipAmounts() {
+	private HashMap<Integer, Integer> getSelectedShipAmounts() {
 		HashMap<Integer, Integer> shipAmounts = new HashMap<>();
 
 		shipAmounts.put(1, (int)spn1Long.getValue());

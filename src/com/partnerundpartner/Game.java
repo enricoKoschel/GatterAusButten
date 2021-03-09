@@ -4,7 +4,6 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Game extends PApplet {
 	private enum GameState {
@@ -54,28 +53,18 @@ public class Game extends PApplet {
 	private float versionYPosition;
 
 	//See updateLayout()
-	private final boolean forceAspectRatio;
+	private boolean forceAspectRatio;
 
 	private final String version = "v0.7-beta";
 
 	public final Object lock = new Object();
 	private boolean exitToSettings;
 
-	public Game(int width, boolean forceAspectRatio, int numOfPlayFieldCells, AI.Difficulty aiDifficulty,
-				boolean shootAgainAfterHit, HashMap<Integer, Integer> shipAmounts) {
-		this.forceAspectRatio = forceAspectRatio;
-		this.numOfPlayFieldCells = numOfPlayFieldCells;
-		this.shootAgainAfterHit = shootAgainAfterHit;
-
-		AI.setDifficulty(aiDifficulty);
-
-		startingWidth = width;
+	public Game(GameSettings settings) {
+		startingWidth = settings.width;
 
 		//Set height according to 16:9 aspect ratio
 		startingHeight = startingWidth * 9 / 16;
-
-		ownField = new PlayField(numOfPlayFieldCells, shipAmounts);
-		enemyField = new PlayField(numOfPlayFieldCells, shipAmounts);
 
 		//Open window
 		String[] processingArgs = {""};
@@ -85,14 +74,16 @@ public class Game extends PApplet {
 
 		PImage icon = loadImage("res/img/icon.png");
 		surface.setIcon(icon);
+
+		reset(settings);
 	}
 
 	//Game variables
-	private final int numOfPlayFieldCells;
-	private final PlayField ownField;
-	private final PlayField enemyField;
+	private int numOfPlayFieldCells;
+	private PlayField ownField;
+	private PlayField enemyField;
 
-	private final boolean shootAgainAfterHit;
+	private boolean shootAgainAfterHit;
 
 	private final ArrayList<String> infoText = new ArrayList<>();
 
@@ -100,6 +91,41 @@ public class Game extends PApplet {
 
 	//Dummy ship for placing new ships
 	private final Ship selectedShip = new Ship(0, 0, 0, Ship.Orientation.Horizontal);
+
+	public void reset(GameSettings settings) {
+		//Reset selected ship
+		selectedShip.setOrientation(Ship.Orientation.Horizontal);
+		selectedShip.setLength(0);
+
+		currentState = GameState.PickShips;
+
+		exitToSettings = false;
+
+		forceAspectRatio = settings.forceAspectRatio;
+		numOfPlayFieldCells = settings.playFieldSize;
+		shootAgainAfterHit = settings.turnOrder;
+
+		AI.setDifficulty(settings.difficulty);
+
+		ownField = new PlayField(numOfPlayFieldCells, settings.shipAmounts);
+		enemyField = new PlayField(numOfPlayFieldCells, settings.shipAmounts);
+
+		surface.setSize(settings.width, settings.width * 9 / 16);
+		surface.setLocation(displayWidth / 2 - width / 2, displayHeight / 2 - height / 2);
+		surface.setVisible(true);
+	}
+
+	private void exitToSettings() {
+		if (currentState == GameState.PickShips) {
+			//Signal to main() that the settings should be opened
+			synchronized (lock) {
+				exitToSettings = true;
+				lock.notifyAll();
+			}
+
+			surface.setVisible(false);
+		}
+	}
 
 	@Override
 	public void settings() {
@@ -577,19 +603,6 @@ public class Game extends PApplet {
 
 				exitToSettings();
 				break;
-		}
-	}
-
-	private void exitToSettings() {
-		if (currentState == GameState.PickShips) {
-			synchronized (lock) {
-				exitToSettings = true;
-				lock.notifyAll();
-			}
-
-			//FIXME Only stops thread and hides window, memory leak
-			surface.stopThread();
-			surface.setVisible(false);
 		}
 	}
 

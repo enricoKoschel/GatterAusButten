@@ -1,32 +1,31 @@
 package com.partnerundpartner;
 
-import java.util.HashMap;
-
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
+		//Create new game with settings from settings gui
+		Game game = new Game(openSettingsGui());
+
 		while (true) {
-			PreGameGUI gui = new PreGameGUI("Einstellungen");
-			gui.setVisible(true);
-
-			synchronized (gui.lock) {
-				while (!gui.isGameStarted()) gui.lock.wait();
-			}
-
-			int width = gui.getSelectedWindowSize();
-			boolean forceAspectRatio = gui.getSelectedForceRatio();
-			int playFieldSize = gui.getSelectedPlayFieldSize();
-			AI.Difficulty difficulty = gui.getSelectedDifficulty();
-			boolean turnOrder = gui.getSelectedTurnOrder();
-			HashMap<Integer, Integer> shipAmounts = gui.getSelectedShipAmounts();
-
-			Game game = new Game(width, forceAspectRatio, playFieldSize, difficulty, turnOrder, shipAmounts);
-
+			//Wait for main game to signal that the settings should be opened
 			synchronized (game.lock) {
 				while (!game.getExitToSettings()) game.lock.wait();
 			}
 
-			//FIXME game does not get cleaned up correctly, memory leak
-			System.gc();
+			//Reset game with settings from settings gui
+			game.reset(openSettingsGui());
 		}
+	}
+
+	private static GameSettings openSettingsGui() throws InterruptedException {
+		//Open settings gui
+		PreGameGUI gui = new PreGameGUI("Einstellungen");
+		gui.setVisible(true);
+
+		//Wait for settings gui to signal that the game has started
+		synchronized (gui.lock) {
+			while (!gui.isGameStarted()) gui.lock.wait();
+		}
+
+		return gui.getSelectedSettings();
 	}
 }
