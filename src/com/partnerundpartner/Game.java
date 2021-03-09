@@ -570,17 +570,21 @@ public class Game extends PApplet {
 				//Processing window closes if escape key is not reset
 				key = 0;
 
-				if (currentState == GameState.PickShips) {
-					synchronized (lock) {
-						exitToSettings = true;
-						lock.notifyAll();
-					}
-
-					//FIXME Only stops thread and hides window, memory leak
-					surface.stopThread();
-					surface.setVisible(false);
-				}
+				exitToSettings();
 				break;
+		}
+	}
+
+	private void exitToSettings() {
+		if (currentState == GameState.PickShips) {
+			synchronized (lock) {
+				exitToSettings = true;
+				lock.notifyAll();
+			}
+
+			//FIXME Only stops thread and hides window, memory leak
+			surface.stopThread();
+			surface.setVisible(false);
 		}
 	}
 
