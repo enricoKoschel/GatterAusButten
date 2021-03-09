@@ -128,10 +128,8 @@ public class Game extends PApplet {
 				drawMainGameScreen();
 				break;
 			case Won:
-				drawWinScreen();
-				break;
 			case Lost:
-				drawLoseScreen();
+				drawResultScreen();
 				break;
 		}
 	}
@@ -180,21 +178,22 @@ public class Game extends PApplet {
 		versionYPosition = height * 0.99f;
 	}
 
-	private void drawWinScreen() {
+	private void drawResultScreen() {
 		pushStyle();
 
-		fill(0, 255, 0);
-		drawMiddleText("Gewonnen!");
-		drawStatistics(statisticsXPosition, statisticsYPosition);
+		String text;
 
-		popStyle();
-	}
+		if (currentState == GameState.Won) {
+			fill(0, 255, 0);
+			text = "Gewonnen!";
+		} else if (currentState == GameState.Lost) {
+			fill(255, 0, 0);
+			text = "Verloren!";
+		} else {
+			throw new IllegalStateException("Cannot draw result screen if game has not ended!");
+		}
 
-	private void drawLoseScreen() {
-		pushStyle();
-
-		fill(255, 0, 0);
-		drawMiddleText("Verloren!");
+		drawMiddleText(text);
 		drawStatistics(statisticsXPosition, statisticsYPosition);
 
 		popStyle();
