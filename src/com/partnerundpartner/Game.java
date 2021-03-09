@@ -67,8 +67,7 @@ public class Game extends PApplet {
 		startingHeight = startingWidth * 9 / 16;
 
 		//Open window
-		String[] processingArgs = {""};
-		PApplet.runSketch(processingArgs, this);
+		PApplet.runSketch(new String[]{""}, this);
 		surface.setTitle("Schiffe versenken");
 		surface.setResizable(true);
 
@@ -161,9 +160,10 @@ public class Game extends PApplet {
 	}
 
 	private void updateLayout() {
-		//If funky resize is enabled and the window is not currently in 16:9 aspect ratio,
+		//If forceAspectRatio is enabled and the window is not currently in 16:9 aspect ratio,
 		//force a resize prioritizing the width and forcing the height.
-		//Resizing sometimes results in weird artifacts and window sizes, this is Processing fault.
+		//Resizing sometimes results in weird artifacts and window sizes,
+		//this has to do with how processing resizes windows and can not be avoided.
 		if (forceAspectRatio && height != width * 9 / 16) {
 			surface.setSize(width, width * 9 / 16);
 		}
@@ -483,6 +483,7 @@ public class Game extends PApplet {
 		int cellX = getSelectedCell(mouseX - ownPlayFieldXPosition, cellSize);
 		int cellY = getSelectedCell(mouseY - ownPlayFieldYPosition, cellSize);
 
+		//Subtract 1 if ship is 3 long to grab the ship at the middle cell
 		if (selectedShip.getLength() == 3) {
 			if (selectedShip.getOrientation() == Ship.Orientation.Horizontal) cellX -= 1;
 			else cellY -= 1;

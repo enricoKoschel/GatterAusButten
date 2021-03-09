@@ -41,7 +41,7 @@ public final class AI {
 	}
 
 	private static void shootEasy(PlayField playField) {
-		//Shoot at random cell
+		//Shoot at a random cell
 		do {
 			setCellsRandom(playField);
 
@@ -50,7 +50,7 @@ public final class AI {
 	}
 
 	private static void shootMedium(PlayField playField) {
-		//Shoot at random cell where it is not impossible for a ship to be
+		//Shoot at a random cell where it is not impossible for a ship to be
 		do {
 			setCellsRandom(playField);
 
