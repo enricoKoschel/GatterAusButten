@@ -401,46 +401,52 @@ public class Game extends PApplet {
 	}
 
 	private void drawShipList(float x, float y) {
-		//3 long
 		pushStyle();
 
 		textSize(bigTextSize);
 
-		if (selectedShip.getLength() == 3) {
-			fill(128, 128, 128);
-		} else {
+		//3 long
+		if (ownField.getRemainingShipsToSelect(3) > 0) {
+			if (selectedShip.getLength() == 3) {
+				fill(128, 128, 128);
+			} else {
+				fill(255);
+			}
+
+			rect(x, y, smallCellSize, smallCellSize);
+			rect(x + smallCellSize, y, smallCellSize, smallCellSize);
+			rect(x + smallCellSize * 2, y, smallCellSize, smallCellSize);
+
 			fill(255);
+			text("x" + ownField.getRemainingShipsToSelect(3), x + smallCellSize * 3, y + smallCellSize);
 		}
-
-		rect(x, y, smallCellSize, smallCellSize);
-		rect(x + smallCellSize, y, smallCellSize, smallCellSize);
-		rect(x + smallCellSize * 2, y, smallCellSize, smallCellSize);
-
-		fill(255);
-		text("x" + ownField.getRemainingShipsToSelect(3), x + smallCellSize * 3, y + smallCellSize);
 
 		//2 long
-		if (selectedShip.getLength() == 2) {
-			fill(128, 128, 128);
+		if (ownField.getRemainingShipsToSelect(2) > 0) {
+			if (selectedShip.getLength() == 2) {
+				fill(128, 128, 128);
+			}
+
+			float xPos2Long = width * 0.7f;
+			rect(xPos2Long, y, smallCellSize, smallCellSize);
+			rect(xPos2Long + smallCellSize, y, smallCellSize, smallCellSize);
+
+			fill(255);
+			text("x" + ownField.getRemainingShipsToSelect(2), xPos2Long + smallCellSize * 2, y + smallCellSize);
 		}
-
-		float xPos2Long = width * 0.7f;
-		rect(xPos2Long, y, smallCellSize, smallCellSize);
-		rect(xPos2Long + smallCellSize, y, smallCellSize, smallCellSize);
-
-		fill(255);
-		text("x" + ownField.getRemainingShipsToSelect(2), xPos2Long + smallCellSize * 2, y + smallCellSize);
 
 		//1 long
-		if (selectedShip.getLength() == 1) {
-			fill(128, 128, 128);
+		if (ownField.getRemainingShipsToSelect(1) > 0) {
+			if (selectedShip.getLength() == 1) {
+				fill(128, 128, 128);
+			}
+
+			float xPos1Long = width * 0.88f;
+			rect(xPos1Long, y, smallCellSize, smallCellSize);
+
+			fill(255);
+			text("x" + ownField.getRemainingShipsToSelect(1), xPos1Long + smallCellSize, y + smallCellSize);
 		}
-
-		float xPos1Long = width * 0.88f;
-		rect(xPos1Long, y, smallCellSize, smallCellSize);
-
-		fill(255);
-		text("x" + ownField.getRemainingShipsToSelect(1), xPos1Long + smallCellSize, y + smallCellSize);
 
 		popStyle();
 	}
