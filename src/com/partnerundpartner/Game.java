@@ -384,7 +384,7 @@ public class Game extends PApplet {
 		}
 
 		//Display number of remaining enemy ships
-		String heading = "Gegner Schiffe";
+		String heading = "Lebende Schiffe";
 
 		textSize(bigTextSize);
 		text(heading, x + middleSectionWidth / 2f - textWidth(heading) / 2, width * 0.30f);
