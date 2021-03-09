@@ -5,6 +5,7 @@ public class Main {
 		//Create new game with settings from settings gui
 		Game game = new Game(openSettingsGui());
 
+		//noinspection InfiniteLoopStatement
 		while (true) {
 			//Wait for main game to signal that the settings should be opened
 			synchronized (game.lock) {
