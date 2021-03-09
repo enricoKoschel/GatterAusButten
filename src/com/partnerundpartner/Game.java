@@ -55,7 +55,7 @@ public class Game extends PApplet {
 	//See updateLayout()
 	private boolean forceAspectRatio;
 
-	private final String version = "v0.7-beta";
+	private final String version = "v0.8-beta";
 
 	public final Object lock = new Object();
 	private boolean exitToSettings;
