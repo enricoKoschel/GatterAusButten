@@ -196,10 +196,6 @@ public class PlayField {
 		remainingShipsToSelect.merge(size, -1, Integer::sum);
 	}
 
-	public void setRemainingShipsToSelect(HashMap<Integer, Integer> remainingShipsToSelect) {
-		this.remainingShipsToSelect.putAll(remainingShipsToSelect);
-	}
-
 	public int getNumberOfLivingShips() {
 		return livingShips.size();
 	}
