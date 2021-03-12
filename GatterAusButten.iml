@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="org.processing:core:3.3.7" level="project" />
     <orderEntry type="library" name="org.apache.commons:commons-lang3:3.3.2" level="project" />
+    <orderEntry type="library" name="forms_rt" level="project" />
   </component>
 </module>
