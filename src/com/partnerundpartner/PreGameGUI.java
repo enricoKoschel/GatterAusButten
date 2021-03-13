@@ -226,5 +226,4 @@ public class PreGameGUI extends JFrame {
 	public JComponent $$$getRootComponent$$$() {
 		return mainPanel;
 	}
-
 }
